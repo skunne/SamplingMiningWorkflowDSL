@@ -9,9 +9,13 @@ from sampling_mining_workflows_dsl.operator.selection.filter.FilterOperator impo
 
 
 class WorkflowVisualizer:
-    def __init__(self, workflow):
+    def __init__(self, workflow,output_dir: str = None):
         self.workflow = workflow
-        self.output_dir = os.path.dirname(__file__)
+        if output_dir:
+            self.output_dir = output_dir
+            os.makedirs(self.output_dir, exist_ok=True)
+        else:
+            self.output_dir = os.path.dirname(__file__)
 
     def generate_graph(self, output_file: str = "workflow_graph"):
         svg_path = os.path.join(self.output_dir, output_file)

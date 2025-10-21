@@ -15,12 +15,13 @@ class HistWorkflowAnalysis(WorkflowAnalysis):
         top_x: int = -1,
         category: bool = True,
         sort: bool = False,
+        output_path: str = "hist_analysis/",
     ):
         super().__init__()
         self.category = category
         self.sort = sort
         self.metadata = metadata
-        self.file_path = "hist_analysis/"
+        self.file_path = output_path
         self.top_x = top_x
 
     def analyze(

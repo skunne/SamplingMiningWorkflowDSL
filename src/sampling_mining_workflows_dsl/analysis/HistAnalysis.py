@@ -20,6 +20,7 @@ class HistAnalysis:
         top_x: int = -1,
         category: bool = True,
         sort: bool = False,
+        show: bool = False,
     ):
         self.metadata = metadata
         # Wether data should be treated as categorical data or continous
@@ -28,6 +29,7 @@ class HistAnalysis:
         self.sort = sort
         self.save_path = save_path
         os.makedirs(self.save_path, exist_ok=True)
+        self.show = show
 
     def analyze(self, s: Set, file_name: str, op_info: str):
         # From Set to List of Metadata values
@@ -55,7 +57,8 @@ class HistAnalysis:
                 ]
 
             fig, ax = self.create_histogram(metadata_values, op_info)
-            self.show_histogram()
+            if self.show:    
+                self.show_histogram()
             self.save_histogram(fig, file_name)
         except Exception as e:
             print(f"Error analyzing {self.metadata.name}: {e}")
@@ -84,7 +87,10 @@ class HistAnalysis:
         return fig, ax
 
     def save_histogram(self, fig, file_name: str):
+        
         if file_name:
+            # Create folder if needed
+            os.makedirs(self.save_path, exist_ok=True)
             file_path = os.path.join(self.save_path, file_name)
             fig.savefig(file_path)
         else:
