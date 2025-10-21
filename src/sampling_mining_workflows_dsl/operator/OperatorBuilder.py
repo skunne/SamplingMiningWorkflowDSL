@@ -74,14 +74,20 @@ class OperatorBuilder:
         self.workflow.add_operator(cast("Operator", random_selection_operator))
         return self
     
+    def union_operator(self) -> "OperatorBuilder":
+        from sampling_mining_workflows_dsl.operator.set_algebra.internal_set_operator.UnionOperator import UnionOperator
+        union_operator = UnionOperator(self.workflow)
+        self.workflow.add_operator(union_operator)
+        return self
+
     def union_with_operator(self, set_name: str) -> "OperatorBuilder":
-        from sampling_mining_workflows_dsl.operator.set_algebra.set_operator import UnionOperator
+        from sampling_mining_workflows_dsl.operator.set_algebra.set_operator.UnionOperator import UnionOperator
         union_operator = UnionOperator(self.workflow, set_name)
         self.workflow.add_operator(union_operator)
         return self
     
     def union_with_external_set_operator(self, loader:Loader) -> "OperatorBuilder":
-        from sampling_mining_workflows_dsl.operator.set_algebra.external_set_operator import UnionOperator
+        from sampling_mining_workflows_dsl.operator.set_algebra.external_set_operator.UnionOperator import UnionOperator
 
         union_operator = UnionOperator(self.workflow, loader)
         self.workflow.add_operator(union_operator)

@@ -11,7 +11,7 @@ from sampling_mining_workflows_dsl.operator.selection.sampling.SamplingOperator 
 T = TypeVar("T")
 
 
-class ExternalSetOperator(SamplingOperator):
+class ExternalSetOperator(Operator):
     set_function = None
     def __init__(self, workflow,loader:Loader):
         self.loader = loader

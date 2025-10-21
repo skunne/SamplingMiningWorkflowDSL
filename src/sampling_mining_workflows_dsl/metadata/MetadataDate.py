@@ -13,9 +13,24 @@ class MetadataDate(Metadata[Union[datetime, date]]):
     def create_metadata_value(self, value):
         if not isinstance(value, self.type):
             try:
-                typed_value=parser.parse(str(value)) 
+                # Check if the string represents a timestamp (long)
+                str_value = str(value)
+                if str_value.isdigit():
+                    # Try to parse as timestamp (seconds)
+                    timestamp = int(str_value)
+                    # Handle both seconds and milliseconds timestamps
+                    if timestamp > 1e10:  # Likely milliseconds
+                        typed_value = datetime.fromtimestamp(timestamp / 1000)
+                    else:  # Likely seconds
+                        typed_value = datetime.fromtimestamp(timestamp)
+                else:
+                    # Parse as date string
+                    typed_value = parser.parse(str_value)
             except Exception as e:
                 raise TypeError(f"Value {value} date is not parsable" ) from e
+        else:
+            typed_value = value
+            
         from sampling_mining_workflows_dsl.metadata.MetadataValue import MetadataValue
 
         return MetadataValue(self, typed_value)

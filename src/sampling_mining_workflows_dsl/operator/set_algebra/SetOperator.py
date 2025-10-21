@@ -10,7 +10,7 @@ from sampling_mining_workflows_dsl.operator.selection.sampling.SamplingOperator 
 T = TypeVar("T")
 
 
-class SetOperator(SamplingOperator):
+class SetOperator(Operator):
     set_function = None
     def __init__(self, workflow,other:Set):
         self.other = other

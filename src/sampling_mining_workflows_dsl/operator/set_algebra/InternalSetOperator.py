@@ -10,10 +10,10 @@ from sampling_mining_workflows_dsl.operator.selection.sampling.SamplingOperator 
 T = TypeVar("T")
 
 
-class InternalSetOperator(SamplingOperator):
+class InternalSetOperator(Operator):
     set_function = None
     def __init__(self, workflow,indexes=[-1]):
-        self.indexes
+        self.indexes=indexes
         super().__init__(workflow)
         
       
@@ -21,7 +21,8 @@ class InternalSetOperator(SamplingOperator):
 
         if self._input.get_depth() < 2:
             raise ValueError(f" Internal set Operator need a set of depth >= 2")
-        
+        if not self._output:
+            self._output = Set()
         if not self._output.size()==0:
             print("Warning: output set is not empty, clearing it")
             self._output.remove_all_elements()
