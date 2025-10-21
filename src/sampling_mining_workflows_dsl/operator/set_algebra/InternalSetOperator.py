@@ -31,13 +31,15 @@ class InternalSetOperator(Operator):
             self.indexes = list(range(self._input.size()))
 
         #get the first set and delete it from the list
-        set_res = self._input.get_element_by_index(self.indexes.pop(0))
+        set_res = self._input.get_element_by_index(self.indexes.pop(0)).clone()
         
         for i in self.indexes:
             set = self._input.get_element_by_index(i)
             if not isinstance(set, Set):
                 raise ValueError("Internal set Operator need need a set of depth >= 2")
             self.set_function(set_res,set)
+        self._output.add_element(set_res)
         return self
+    
     
    

@@ -172,7 +172,13 @@ class Set(Element):
 
     def get_elements(self) -> list[Element]:
         return list(self.elements.values())
-
+    
+    def clone(self) -> "Set":
+        cloned_set = Set()
+        for element in self.get_elements():
+            cloned_set.add_element(element)
+        return cloned_set
+    
     def __str__(self) -> str:
         return self.to_string(0)
 
