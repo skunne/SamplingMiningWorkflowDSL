@@ -1,0 +1,72 @@
+from pathlib import Path
+from typing import TYPE_CHECKING, Any
+
+from sampling_mining_workflows_dsl.element.Loader import Loader
+from sampling_mining_workflows_dsl.element.loader.CsvLoader import CsvLoader
+from sampling_mining_workflows_dsl.element.Repository import Repository
+from sampling_mining_workflows_dsl.element.Set import Set
+from sampling_mining_workflows_dsl.github_seart.metadata import all_metadatas
+from sampling_mining_workflows_dsl.metadata.MetadataNumber import MetadataNumber
+from sampling_mining_workflows_dsl.metadata.MetadataString import MetadataString
+from sampling_mining_workflows_dsl.metadata.MetadataValue import MetadataValue
+from sampling_mining_workflows_dsl.metadata.Metadata import Metadata
+from sampling_mining_workflows_dsl.swh.SwhGraphApiClient import SWHGraphAPIClient
+
+if TYPE_CHECKING:
+    from sampling_mining_workflows_dsl.metadata.MetadataValue import MetadataValue
+
+class SwhLoader(Loader):
+    def __init__(self,*all_metadatas:Metadata):
+        super().__init__(*all_metadatas)
+        self.swh_api_client :SWHGraphAPIClient=SWHGraphAPIClient()
+
+    def load_set(self) -> Set:
+        swh_set = Set()
+        repos_id = self.swh_api_client.get_all_origin_ids()
+        for repo_id in repos_id:
+            repository = Repository(self.metadatas[self.metadata_id_name])
+            for metadata in self.metadatas.values():
+                if metadata is swh_url:
+                    metadata_value = SwhUrlMetadataValue(metadata,self.swh_api_client,repo_id)
+                elif metadata is swh_commit_count:
+                    metadata_value = SwhCommitCountMetadataValue(metadata,self.swh_api_client,repo_id)
+                elif metadata is swh_id:
+                    metadata_value = metadata.create_metadata_value(repo_id)
+                else:
+                    raise ValueError(f"Unsupported metadata type: {metadata.name}")
+                repository.add_metadata_value(metadata_value)
+            swh_set.add_element(repository)
+        return swh_set
+
+
+swh_url :MetadataString = MetadataString(
+    name="swh_url",
+)
+
+swh_commit_count:MetadataNumber = MetadataNumber(
+    name="swh_commit_count",
+    type_=int,
+)
+
+swh_id :MetadataNumber = MetadataNumber(
+    name="swh_id",
+    type_=int,
+)
+
+class SwhUrlMetadataValue(MetadataValue[str]):
+    def __init__(self, metadata ,swh_api_client:SWHGraphAPIClient,id_value:int):
+        super().__init__(metadata, "default_value")
+        self.swh_api_client=swh_api_client
+        self.id_value=id_value
+    
+    def get_value(self):
+        return self.swh_api_client.get_origin_url(self.id_value)
+
+class SwhCommitCountMetadataValue(MetadataValue[int]):
+    def __init__(self, metadata ,swh_api_client:SWHGraphAPIClient,id_value:int):
+        super().__init__(metadata, 0)
+        self.swh_api_client=swh_api_client
+        self.id_value=id_value
+    
+    def get_value(self):
+        return self.swh_api_client.get_commit_count(self.id_value)
