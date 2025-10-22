@@ -1,11 +1,13 @@
+from datetime import date, datetime
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Union
 
 from sampling_mining_workflows_dsl.element.Loader import Loader
 from sampling_mining_workflows_dsl.element.loader.CsvLoader import CsvLoader
 from sampling_mining_workflows_dsl.element.Repository import Repository
 from sampling_mining_workflows_dsl.element.Set import Set
 from sampling_mining_workflows_dsl.github_seart.metadata import all_metadatas
+from sampling_mining_workflows_dsl.metadata.MetadataDate import MetadataDate
 from sampling_mining_workflows_dsl.metadata.MetadataNumber import MetadataNumber
 from sampling_mining_workflows_dsl.metadata.MetadataString import MetadataString
 from sampling_mining_workflows_dsl.metadata.MetadataValue import MetadataValue
@@ -32,6 +34,10 @@ class SwhLoader(Loader):
                     metadata_value = SwhCommitCountMetadataValue(metadata,self.swh_api_client,repo_id)
                 elif metadata is swh_id:
                     metadata_value = metadata.create_metadata_value(repo_id)
+                elif metadata is swh_commiter_count:
+                    metadata_value = SwhCommitterCountMetadataValue(metadata,self.swh_api_client,repo_id)
+                elif metadata is swh_latest_commit_date:
+                    metadata_value = SwhLatestCommitDateMetadataValue(metadata,self.swh_api_client,repo_id)
                 else:
                     raise ValueError(f"Unsupported metadata type: {metadata.name}")
                 repository.add_metadata_value(metadata_value)
@@ -53,6 +59,15 @@ swh_id :MetadataNumber = MetadataNumber(
     type_=int,
 )
 
+swh_commiter_count:MetadataNumber = MetadataNumber(
+    name="swh_commiter_count",
+    type_=int,
+)
+
+swh_latest_commit_date:MetadataDate = MetadataDate(
+    name="swh_latest_commit_date",
+)
+
 class SwhUrlMetadataValue(MetadataValue[str]):
     def __init__(self, metadata ,swh_api_client:SWHGraphAPIClient,id_value:int):
         super().__init__(metadata, "default_value")
@@ -70,3 +85,22 @@ class SwhCommitCountMetadataValue(MetadataValue[int]):
     
     def get_value(self):
         return self.swh_api_client.get_commit_count(self.id_value)
+    
+class SwhCommitterCountMetadataValue(MetadataValue[int]):
+    def __init__(self, metadata ,swh_api_client:SWHGraphAPIClient,id_value:int):
+        super().__init__(metadata, 0)
+        self.swh_api_client=swh_api_client
+        self.id_value=id_value
+    
+    def get_value(self):
+        return self.swh_api_client.get_committer_count(self.id_value)
+    
+class SwhLatestCommitDateMetadataValue(MetadataValue[Union[datetime, date]]):
+    def __init__(self, metadata ,swh_api_client:SWHGraphAPIClient,id_value:int):
+        super().__init__(metadata, 0)
+        self.swh_api_client=swh_api_client
+        self.id_value=id_value
+    
+    def get_value(self):
+        timestamp = self.swh_api_client.get_latest_commit_date(self.id_value)
+        return datetime.fromtimestamp(timestamp)

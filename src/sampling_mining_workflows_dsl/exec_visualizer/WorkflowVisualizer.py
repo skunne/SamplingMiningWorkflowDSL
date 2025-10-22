@@ -9,7 +9,7 @@ from sampling_mining_workflows_dsl.operator.selection.filter.FilterOperator impo
 
 
 class WorkflowVisualizer:
-    def __init__(self, workflow,output_dir: str = None):
+    def __init__(self, workflow,output_dir: str = "output_workflow_graph"):
         self.workflow = workflow
         if output_dir:
             self.output_dir = output_dir

@@ -137,7 +137,7 @@ class Set(Element):
         
         set_id = ""
         for id in self.elements.keys():
-            set_id = set_id + "_" + id
+            set_id = set_id + "_" + str(id)
         return set_id
 
     def flatten_set(self) -> "Set":
