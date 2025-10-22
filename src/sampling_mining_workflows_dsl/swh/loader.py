@@ -104,5 +104,5 @@ class SwhLatestCommitDateMetadataValue(MetadataValue[Union[datetime, date]]):
     def get_value(self):
         timestamp = self.swh_api_client.get_latest_commit_date(self.id_value)
         if timestamp is None:
-            return date.min
+            return datetime.min
         return datetime.fromtimestamp(timestamp)
