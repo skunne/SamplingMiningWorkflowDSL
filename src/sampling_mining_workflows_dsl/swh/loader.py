@@ -48,6 +48,7 @@ class SwhLoader(Loader):
         print("SWH repositories loaded.")
         print("cache")
         self.swh_api_client.cache_latest_commit_dates()
+        self.swh_api_client.cache_commit_counts()
         print("SWH repositories cached.")
         return swh_set
 
