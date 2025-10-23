@@ -25,6 +25,7 @@ class ExternalSetOperator(Operator):
         set= self.loader.load()
         self.output_set.add(self.input_set)
         self.set_function(self.output_set,set)
+        super().execute()
         return self
     
         

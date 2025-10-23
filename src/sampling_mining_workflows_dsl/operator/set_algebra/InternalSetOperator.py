@@ -40,6 +40,7 @@ class InternalSetOperator(Operator):
             self.set_function(set_res,set)
         for element in set_res.elements.values():
             self._output.add_element(element)
+        super().execute()
         return self
     
     
