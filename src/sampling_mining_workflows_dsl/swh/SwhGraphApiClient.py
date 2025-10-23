@@ -68,6 +68,7 @@ class SWHGraphAPIClient:
     def get_latest_commit_date(self, origin_id: int) -> Optional[int]:
         """Récupère la date du dernier commit"""
         if self.latest_commit_dates_cache and origin_id in self.latest_commit_dates_cache:
+            print("cache hit")
             return self.latest_commit_dates_cache[origin_id]
         try:
             response = self.session.get(f"{self.base_url}/origins/{origin_id}/latest-commit-date")
