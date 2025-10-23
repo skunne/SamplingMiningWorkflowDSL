@@ -25,6 +25,7 @@ class HistAnalysis:
         log_y: bool = False,
         fixed_bins: int = None,
         max_x_bound: float = None,
+        x_label: str = None,
     ):
         self.metadata = metadata
         # Wether data should be treated as categorical data or continous
@@ -37,6 +38,7 @@ class HistAnalysis:
         self.log_y = log_y
         self.fixed_bins = fixed_bins
         self.max_x_bound = max_x_bound
+        self.x_label = x_label
 
     def analyze(self, s: Set, file_name: str, op_info: str):
         # From Set to List of Metadata values
@@ -85,7 +87,11 @@ class HistAnalysis:
 
         unique_values = series.nunique()
 
-        fig, ax = plt.subplots()
+        # Set style and create figure with better styling
+        plt.style.use('default')  # Reset to default style
+        fig, ax = plt.subplots(figsize=(10, 6))
+        fig.patch.set_facecolor('white')
+        
         if not self.category:
             # Determine number of bins
             if self.fixed_bins is not None:
@@ -93,7 +99,15 @@ class HistAnalysis:
             else:
                 bins = min(10, unique_values)
             
-            ax.hist(x=data, bins=bins)
+            # Create histogram with better styling
+            n, bins_edges, patches = ax.hist(
+                x=data, 
+                bins=bins,
+                color="#000000",  # Dark blue color
+                alpha=0.85,
+                edgecolor="#C9CCD3",  # Very dark blue border
+                linewidth=1.2
+            )
             
             if self.log_y:
                 ax.set_yscale('log')
@@ -106,13 +120,57 @@ class HistAnalysis:
                 value_counts = series.value_counts(ascending=False, sort=True)
             else:
                 value_counts = series.value_counts().sort_index(ascending=True)
-            value_counts.plot(kind="bar", ax=ax)
-            ax.set_xlabel("Category")
-            # Note: log scale and x bounds don't make sense for categorical data (bar charts)
-            # so we only apply them to continuous histograms
+            
+            # Create bar chart with better styling
+            bars = value_counts.plot(
+                kind="bar", 
+                ax=ax,
+                color="#000000",  # Dark blue color
+                alpha=0.85,
+                edgecolor='#C9CCD3',  # Very dark blue border
+                linewidth=1.2
+            )
+            
+            
+            # Set custom x-label or default
+            x_axis_label = self.x_label if self.x_label else "Category"
+            ax.set_xlabel(x_axis_label, fontsize=12, fontweight='bold')
+            
+            # Rotate x-axis labels for better readability
+            plt.xticks(rotation=45, ha='right')
 
-        ax.set_title(op_info)
-        ax.set_ylabel("Frequency")
+        # Enhanced styling
+        ax.set_title(op_info, fontsize=14, fontweight='bold', pad=20)
+        
+        # Y-axis label with log scale indication
+        y_label = "Frequency"
+        if self.log_y:
+            y_label += " (Log Scale)"
+        ax.set_ylabel(y_label, fontsize=12, fontweight='bold')
+        
+        # Set custom x-label for continuous data if provided
+        if not self.category and self.x_label:
+            ax.set_xlabel(self.x_label, fontsize=12, fontweight='bold')
+        
+        # Grid styling
+        ax.grid(True, alpha=0.3, linestyle='-', linewidth=0.5)
+        ax.set_axisbelow(True)
+        
+        # Spine styling
+        for spine in ax.spines.values():
+            spine.set_color('#333333')
+            spine.set_linewidth(1)
+        
+        # Make axes more visible with intermediate ticks
+        ax.tick_params(axis='both', which='major', labelsize=10, colors='#333333')
+        ax.tick_params(axis='both', which='minor', labelsize=8, colors='#666666')
+        
+        # Add minor ticks for Y axis for better readability
+        ax.yaxis.set_minor_locator(ticker.AutoMinorLocator())
+        
+        # If log scale, use log minor locator for Y axis
+        if self.log_y:
+            ax.yaxis.set_minor_locator(ticker.LogLocator(base=10.0, subs='auto', numticks=4))
         
         # Format axis numbers with separators
         # Format x-axis with space separators for thousands

@@ -15,8 +15,8 @@ class kolmogorov_smirnov:
         second_list = self.extract_list(sample)
 
         # Perform the Kolmogorov-Smirnov test
-        ks_stat, ks_p_value = ks_2samp(first_list, second_list)
-        return ks_p_value
+        res = ks_2samp(first_list, second_list)
+        return res
 
     def extract_list(self, s: Set) -> list[int]:
         metadata_values = []
