@@ -26,7 +26,7 @@ class WorkflowVisualizer:
         # Add input node
         dot.node(
             "InputSet",
-            label=f"INITIAL SAMPLING FRAME\nSize : {self.workflow.get_workflow_input().flatten_set().size()}",
+            label=f"INITIAL\nSAMPLING FRAME\nSize : {self.workflow.get_workflow_input().flatten_set().size()}",
             shape="box",
         )
 
@@ -71,8 +71,9 @@ class WorkflowVisualizer:
             output_set = op.get_output()
             node_name = f"{op.__class__.__name__}_{level}_{workflow_number}_{op_number}"
 
-            # Increment global counter for each operator
-            self.global_set_counter += 1
+            # Only increment counter for non-grouping operators
+            if not isinstance(op, GroupingOperator):
+                self.global_set_counter += 1
             
             # Label formatting with global set number
             if isinstance(op, FilterOperator) and isinstance(
@@ -81,11 +82,11 @@ class WorkflowVisualizer:
                 constraint = cast(
                     "BoolConstraintString", op.get_constraint()
                 ).get_string_constraint()
-                label = f"Filter Operator\n{constraint}\n#{self.global_set_counter} Size : {output_set.flatten_set().size()}"
+                label = f"Filter Operator\n{constraint}\n\nSET#{self.global_set_counter}\n Size : {output_set.flatten_set().size()}"
             elif isinstance(op, GroupingOperator):
-                label = f"Grouping\nOperator\n#{self.global_set_counter}"
+                label = f"Grouping\nOperator"  # No number for grouping
             else:
-                label = f"{op.__class__.__name__.replace('Operator', '')}\nOperator\n#{self.global_set_counter} Size : {output_set.flatten_set().size()}"
+                label = f"{op.__class__.__name__.replace('Operator', '')}\nOperator\n\nSET#{self.global_set_counter}\n Size : {output_set.flatten_set().size()}"
 
             dot.node(node_name, label=label, shape="box")
 
