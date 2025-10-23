@@ -13,6 +13,7 @@ from sampling_mining_workflows_dsl.metadata.MetadataString import MetadataString
 from sampling_mining_workflows_dsl.metadata.MetadataValue import MetadataValue
 from sampling_mining_workflows_dsl.metadata.Metadata import Metadata
 from sampling_mining_workflows_dsl.swh.SwhGraphApiClient import SWHGraphAPIClient
+from tqdm import tqdm
 
 if TYPE_CHECKING:
     from sampling_mining_workflows_dsl.metadata.MetadataValue import MetadataValue
@@ -26,23 +27,24 @@ class SwhLoader(Loader):
         print("Loading SWH repositories...")
         swh_set = Set()
         repos_id = self.swh_api_client.get_all_origin_ids()
-        for repo_id in repos_id:
-            repository = Repository(self.metadatas[self.metadata_id_name])
-            for metadata in self.metadatas.values():
-                if metadata is swh_url:
-                    metadata_value = SwhUrlMetadataValue(metadata,self.swh_api_client,repo_id)
-                elif metadata is swh_commit_count:
-                    metadata_value = SwhCommitCountMetadataValue(metadata,self.swh_api_client,repo_id)
-                elif metadata is swh_id:
-                    metadata_value = metadata.create_metadata_value(repo_id)
-                elif metadata is swh_commiter_count:
-                    metadata_value = SwhCommitterCountMetadataValue(metadata,self.swh_api_client,repo_id)
-                elif metadata is swh_latest_commit_date:
-                    metadata_value = SwhLatestCommitDateMetadataValue(metadata,self.swh_api_client,repo_id)
-                else:
-                    raise ValueError(f"Unsupported metadata type: {metadata.name}")
-                repository.add_metadata_value(metadata_value)
-            swh_set.add_element(repository)
+        with tqdm(repos_id, desc="Filtering elements", unit="repo_id") as pbar:
+            for repo_id in pbar:
+                repository = Repository(self.metadatas[self.metadata_id_name])
+                for metadata in self.metadatas.values():
+                    if metadata is swh_url:
+                        metadata_value = SwhUrlMetadataValue(metadata,self.swh_api_client,repo_id)
+                    elif metadata is swh_commit_count:
+                        metadata_value = SwhCommitCountMetadataValue(metadata,self.swh_api_client,repo_id)
+                    elif metadata is swh_id:
+                        metadata_value = metadata.create_metadata_value(repo_id)
+                    elif metadata is swh_commiter_count:
+                        metadata_value = SwhCommitterCountMetadataValue(metadata,self.swh_api_client,repo_id)
+                    elif metadata is swh_latest_commit_date:
+                        metadata_value = SwhLatestCommitDateMetadataValue(metadata,self.swh_api_client,repo_id)
+                    else:
+                        raise ValueError(f"Unsupported metadata type: {metadata.name}")
+                    repository.add_metadata_value(metadata_value)
+                swh_set.add_element(repository)
         print("SWH repositories loaded.")
         return swh_set
 
