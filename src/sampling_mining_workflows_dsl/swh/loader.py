@@ -23,6 +23,7 @@ class SwhLoader(Loader):
         self.swh_api_client :SWHGraphAPIClient=SWHGraphAPIClient()
 
     def load_set(self) -> Set:
+        print("Loading SWH repositories...")
         swh_set = Set()
         repos_id = self.swh_api_client.get_all_origin_ids()
         for repo_id in repos_id:
@@ -42,6 +43,7 @@ class SwhLoader(Loader):
                     raise ValueError(f"Unsupported metadata type: {metadata.name}")
                 repository.add_metadata_value(metadata_value)
             swh_set.add_element(repository)
+        print("SWH repositories loaded.")
         return swh_set
 
 
