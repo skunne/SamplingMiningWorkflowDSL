@@ -25,3 +25,6 @@ class FilterOperator(Operator):
 
     def get_constraint(self) -> Constraint:
         return self._constraint
+
+    def short_str(self) -> str:
+        return str(self._constraint)+" "+super().short_str()

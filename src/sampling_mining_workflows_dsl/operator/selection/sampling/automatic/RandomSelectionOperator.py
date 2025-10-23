@@ -19,3 +19,6 @@ class RandomSelectionOperator(AutomaticSamplingOperator):
         self._output = self._input.get_random_subset(self._cardinality, self._seed)
         super().execute()
         return self
+    
+    def short_str(self) -> str:
+        return super().short_str() + f" (cardinality: {self._cardinality}, seed: {self._seed})"

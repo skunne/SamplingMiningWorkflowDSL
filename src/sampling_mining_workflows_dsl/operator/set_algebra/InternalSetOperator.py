@@ -38,7 +38,8 @@ class InternalSetOperator(Operator):
             if not isinstance(set, Set):
                 raise ValueError("Internal set Operator need need a set of depth >= 2")
             self.set_function(set_res,set)
-        self._output=set_res
+        for element in set_res.elements.values():
+            self._output.add_element(element)
         return self
     
     

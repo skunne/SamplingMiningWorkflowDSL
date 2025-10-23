@@ -11,6 +11,7 @@ from sampling_mining_workflows_dsl.operator.selection.filter.FilterOperator impo
 class WorkflowVisualizer:
     def __init__(self, workflow,output_dir: str = "output_workflow_graph"):
         self.workflow = workflow
+        self.global_set_counter = 0  # Global counter shared across all levels
         if output_dir:
             self.output_dir = output_dir
             os.makedirs(self.output_dir, exist_ok=True)
@@ -25,11 +26,12 @@ class WorkflowVisualizer:
         # Add input node
         dot.node(
             "InputSet",
-            label=f"INPUT SET\nSize : {self.workflow.get_workflow_input().flatten_set().size()}",
+            label=f"INITIAL SAMPLING FRAME\nSize : {self.workflow.get_workflow_input().flatten_set().size()}",
             shape="box",
         )
 
         # Traverse and draw the workflow
+        self.global_set_counter = 0  # Reset counter for each graph generation
         last_nodes = self._add_nodes_and_edges(
             dot, self.workflow, parent_names=["InputSet"]
         )
@@ -69,18 +71,21 @@ class WorkflowVisualizer:
             output_set = op.get_output()
             node_name = f"{op.__class__.__name__}_{level}_{workflow_number}_{op_number}"
 
-            # Label formatting
+            # Increment global counter for each operator
+            self.global_set_counter += 1
+            
+            # Label formatting with global set number
             if isinstance(op, FilterOperator) and isinstance(
                 op.get_constraint(), BoolConstraintString
             ):
                 constraint = cast(
                     "BoolConstraintString", op.get_constraint()
                 ).get_string_constraint()
-                label = f"Filter Operator\n{constraint}\nSize : {output_set.flatten_set().size()}"
+                label = f"Filter Operator\n{constraint}\n#{self.global_set_counter} Size : {output_set.flatten_set().size()}"
             elif isinstance(op, GroupingOperator):
-                label = "Grouping\nOperator"
+                label = f"Grouping\nOperator\n#{self.global_set_counter}"
             else:
-                label = f"{op.__class__.__name__.replace('Operator', '')}\nOperator\nSize : {output_set.flatten_set().size()}"
+                label = f"{op.__class__.__name__.replace('Operator', '')}\nOperator\n#{self.global_set_counter} Size : {output_set.flatten_set().size()}"
 
             dot.node(node_name, label=label, shape="box")
 

@@ -151,6 +151,9 @@ class Operator(ABC):
     def extra_to_string(self, level: int) -> str:
         return ""
 
+    def short_str(self) -> str:
+        return f"{self.__class__.__name__} (input size: {self._input.size() if self._input else 'None'}, output size: {self._output.size() if self._output else 'None'})"
+
     def serialize(self, path: str):
         os.makedirs(os.path.dirname(path), exist_ok=True)
         with open(path, "wb") as file:
