@@ -16,6 +16,9 @@ class HistWorkflowAnalysis(WorkflowAnalysis):
         category: bool = True,
         sort: bool = False,
         output_path: str = "hist_analysis/",
+        log_y: bool = False,
+        fixed_bins: int = None,
+        max_x_bound: float = None,
     ):
         super().__init__()
         self.category = category
@@ -23,13 +26,17 @@ class HistWorkflowAnalysis(WorkflowAnalysis):
         self.metadata = metadata
         self.file_path = output_path
         self.top_x = top_x
+        self.log_y = log_y
+        self.fixed_bins = fixed_bins
+        self.max_x_bound = max_x_bound
 
     def analyze(
         self, workflow, workflow_name: str = "main workflow", op_number: int = 1
     ):
         op = workflow.get_root()
         analysis = HistAnalysis(
-            self.file_path, self.metadata, self.top_x, self.category, self.sort
+            self.file_path, self.metadata, self.top_x, self.category, self.sort, 
+            show=False, log_y=self.log_y, fixed_bins=self.fixed_bins, max_x_bound=self.max_x_bound
         )
         analysis.analyze(
             op.get_input(),

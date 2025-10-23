@@ -3,6 +3,7 @@ from collections import Counter
 from typing import TYPE_CHECKING
 
 import matplotlib.pyplot as plt
+import matplotlib.ticker as ticker
 import pandas as pd
 
 from sampling_mining_workflows_dsl.element.Set import Set
@@ -21,6 +22,9 @@ class HistAnalysis:
         category: bool = True,
         sort: bool = False,
         show: bool = False,
+        log_y: bool = False,
+        fixed_bins: int = None,
+        max_x_bound: float = None,
     ):
         self.metadata = metadata
         # Wether data should be treated as categorical data or continous
@@ -30,6 +34,9 @@ class HistAnalysis:
         self.save_path = save_path
         os.makedirs(self.save_path, exist_ok=True)
         self.show = show
+        self.log_y = log_y
+        self.fixed_bins = fixed_bins
+        self.max_x_bound = max_x_bound
 
     def analyze(self, s: Set, file_name: str, op_info: str):
         # From Set to List of Metadata values
@@ -68,11 +75,32 @@ class HistAnalysis:
         df = pd.DataFrame(data, columns=["value"])
         series = df["value"]
 
+        # Apply max x bound filter if specified
+        if self.max_x_bound is not None and not self.category:
+            # Only filter for continuous data
+            filtered_data = [x for x in data if x <= self.max_x_bound]
+            df = pd.DataFrame(filtered_data, columns=["value"])
+            series = df["value"]
+            data = filtered_data
+
         unique_values = series.nunique()
 
         fig, ax = plt.subplots()
         if not self.category:
-            ax.hist(x=data, bins=min(10, unique_values))
+            # Determine number of bins
+            if self.fixed_bins is not None:
+                bins = self.fixed_bins
+            else:
+                bins = min(10, unique_values)
+            
+            ax.hist(x=data, bins=bins)
+            
+            if self.log_y:
+                ax.set_yscale('log')
+            
+            # Set x-axis limit if max_x_bound is specified
+            if self.max_x_bound is not None:
+                ax.set_xlim(right=self.max_x_bound)
         else:
             if self.sort:
                 value_counts = series.value_counts(ascending=False, sort=True)
@@ -80,9 +108,18 @@ class HistAnalysis:
                 value_counts = series.value_counts().sort_index(ascending=True)
             value_counts.plot(kind="bar", ax=ax)
             ax.set_xlabel("Category")
+            # Note: log scale and x bounds don't make sense for categorical data (bar charts)
+            # so we only apply them to continuous histograms
 
         ax.set_title(op_info)
         ax.set_ylabel("Frequency")
+        
+        # Format axis numbers with separators
+        # Format x-axis with space separators for thousands
+        ax.xaxis.set_major_formatter(ticker.FuncFormatter(lambda x, p: f"{x:,.0f}".replace(',', ' ')))
+        # Format y-axis with space separators for thousands
+        ax.yaxis.set_major_formatter(ticker.FuncFormatter(lambda x, p: f"{x:,.0f}".replace(',', ' ')))
+        
         plt.tight_layout()
         return fig, ax
 
