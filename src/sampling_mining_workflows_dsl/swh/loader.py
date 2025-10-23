@@ -46,6 +46,9 @@ class SwhLoader(Loader):
                     repository.add_metadata_value(metadata_value)
                 swh_set.add_element(repository)
         print("SWH repositories loaded.")
+        print("cache")
+        self.swh_api_client.cache_latest_commit_dates()
+        print("SWH repositories cached.")
         return swh_set
 
 
