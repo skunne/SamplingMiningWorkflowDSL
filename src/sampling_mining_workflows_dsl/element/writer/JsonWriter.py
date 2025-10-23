@@ -12,6 +12,7 @@ class JsonWriter:
         self.set_path = Path(set_path)
 
     def write_set(self, set_obj: Set):
+        print(f"Writing set to JSON at: {self.set_path}")
         if not isinstance(set_obj, Set):
             raise TypeError("Expected a Set object")
 
