@@ -10,11 +10,14 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger(__name__)
 
 class SWHGraphAPIClient:
+
+
     def __init__(self, base_url: str = "http://127.0.0.1:5000"):
         self.base_url = base_url.rstrip('/')
         self.session = requests.Session()
         # Timeout pour éviter les blocages
         self.session.timeout = 30
+        self.latest_commit_dates_cache: Dict[int, Optional[int]] = {}
         
     def health_check(self) -> bool:
         """Vérifie si l'API est disponible"""
@@ -36,6 +39,19 @@ class SWHGraphAPIClient:
             logger.error(f"Failed to get origin IDs: {e}")
             return []
     
+    def cache_latest_commit_dates(self):
+        """Récupère les dates des derniers commits pour toutes les origines"""
+        try:
+            response = self.session.get(f"{self.base_url}/origins/latest-commit-dates")
+            response.raise_for_status()
+            data = response.json()
+            result= data.get('latest_commit_dates', {})
+            self.latest_commit_dates_cache = result
+           
+        except Exception as e:
+            logger.error(f"Failed to get latest commit dates: {e}")
+           
+
     def get_origin_url(self, origin_id: int) -> Optional[str]:
         """Récupère l'URL d'une origine"""
         try:
@@ -51,6 +67,8 @@ class SWHGraphAPIClient:
     
     def get_latest_commit_date(self, origin_id: int) -> Optional[int]:
         """Récupère la date du dernier commit"""
+        if self.latest_commit_dates_cache and origin_id in self.latest_commit_dates_cache:
+            return self.latest_commit_dates_cache[origin_id]
         try:
             response = self.session.get(f"{self.base_url}/origins/{origin_id}/latest-commit-date")
             if response.status_code == 404:
