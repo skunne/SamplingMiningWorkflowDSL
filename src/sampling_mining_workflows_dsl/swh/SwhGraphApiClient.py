@@ -19,6 +19,7 @@ class SWHGraphAPIClient:
         self.session.timeout = 30
         self.latest_commit_dates_cache: Dict[int, Optional[int]] = {}
         self.commit_counts_cache: Dict[int, Optional[int]] = {}
+        self.committer_counts_cache: Dict[int, Optional[int]] = {}
         
     def health_check(self) -> bool:
         """Vérifie si l'API est disponible"""
@@ -65,6 +66,19 @@ class SWHGraphAPIClient:
            
         except Exception as e:
             logger.error(f"Failed to get commit counts: {e}")
+
+    def cache_committer_counts(self):
+        """Récupère les compteurs de commiters pour toutes les origines"""
+        try:
+            response = self.session.get(f"{self.base_url}/origins/committer-counts")
+            response.raise_for_status()
+            data = response.json()
+            #Convert key and values to int
+            data = {int(k): int(v) if v is not None else None for k, v in data.items()}
+            self.committer_counts_cache = data
+           
+        except Exception as e:
+            logger.error(f"Failed to get committer counts: {e}")
            
 
     def get_origin_url(self, origin_id: int) -> Optional[str]:
@@ -97,6 +111,8 @@ class SWHGraphAPIClient:
     
     def get_committer_count(self, origin_id: int) -> Optional[int]:
         """Récupère le nombre de commiters"""
+        if self.committer_counts_cache and origin_id in self.committer_counts_cache:
+            return self.committer_counts_cache[origin_id]
         try:
             response = self.session.get(f"{self.base_url}/origins/{origin_id}/committer-count")
             if response.status_code == 404:
