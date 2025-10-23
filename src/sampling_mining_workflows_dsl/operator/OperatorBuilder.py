@@ -92,6 +92,13 @@ class OperatorBuilder:
         union_operator = UnionOperator(self.workflow, loader)
         self.workflow.add_operator(union_operator)
         return self
+    
+    def difference_with_external_set_operator(self, loader:Loader) -> "OperatorBuilder":
+        from sampling_mining_workflows_dsl.operator.set_algebra.external_set_operator.DifferenceOperator import DiferenceOperator
+
+        union_operator = DifferenceOperator(self.workflow, loader)
+        self.workflow.add_operator(union_operator)
+        return self
 
     def difference_with_operator(self, set_name: str) -> "OperatorBuilder":
         difference_operator = DifferenceOperator(self.workflow, set_name)
