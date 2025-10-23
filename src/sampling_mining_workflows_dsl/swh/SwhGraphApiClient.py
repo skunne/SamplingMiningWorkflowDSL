@@ -45,8 +45,7 @@ class SWHGraphAPIClient:
             response = self.session.get(f"{self.base_url}/origins/latest-commit-dates")
             response.raise_for_status()
             data = response.json()
-            result= data.get('latest_commit_dates', {})
-            self.latest_commit_dates_cache = result
+            self.latest_commit_dates_cache = data
            
         except Exception as e:
             logger.error(f"Failed to get latest commit dates: {e}")
