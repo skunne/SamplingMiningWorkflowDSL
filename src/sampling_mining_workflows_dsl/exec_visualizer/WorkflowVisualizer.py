@@ -24,9 +24,11 @@ class WorkflowVisualizer:
         dot.attr(rankdir="LR")
 
         # Add input node
+        input_size = self.workflow.get_workflow_input().flatten_set().size()
+        formatted_input_size = f"{input_size:,}".replace(',', ' ')
         dot.node(
             "InputSet",
-            label=f"INITIAL\nSAMPLING FRAME\nSize : {self.workflow.get_workflow_input().flatten_set().size()}",
+            label=f"INITIAL\nSAMPLING FRAME\nSize : {formatted_input_size}",
             shape="box",
         )
 
@@ -39,7 +41,8 @@ class WorkflowVisualizer:
         # Add output node
         output_set = self.workflow.get_workflow_output().flatten_set()
         output_size = output_set.size()
-        dot.node("OutputSet", label=f"SAMPLE\nSize : {output_size}", shape="box")
+        formatted_output_size = f"{output_size:,}".replace(',', ' ')
+        dot.node("OutputSet", label=f"SAMPLE\nSize : {formatted_output_size}", shape="box")
 
         # Link last operator(s) to output
         for node in last_nodes:
@@ -82,11 +85,13 @@ class WorkflowVisualizer:
                 constraint = cast(
                     "BoolConstraintString", op.get_constraint()
                 ).get_string_constraint()
-                label = f"Filter Operator\n{constraint}\n\nSET#{self.global_set_counter}\n Size : {output_set.flatten_set().size()}"
+                formatted_size = f"{output_set.flatten_set().size():,}".replace(',', ' ')
+                label = f"Filter Operator\n{constraint}\n\nSET#{self.global_set_counter}\n Size : {formatted_size}"
             elif isinstance(op, GroupingOperator):
                 label = f"Grouping\nOperator"  # No number for grouping
             else:
-                label = f"{op.__class__.__name__.replace('Operator', '')}\nOperator\n\nSET#{self.global_set_counter}\n Size : {output_set.flatten_set().size()}"
+                formatted_size = f"{output_set.flatten_set().size():,}".replace(',', ' ')
+                label = f"{op.__class__.__name__.replace('Operator', '')}\nOperator\n\nSET#{self.global_set_counter}\n Size : {formatted_size}"
 
             dot.node(node_name, label=label, shape="box")
 
