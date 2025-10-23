@@ -20,6 +20,7 @@ class HistWorkflowAnalysis(WorkflowAnalysis):
         fixed_bins: int = None,
         max_x_bound: float = None,
         x_label: str = None,
+        fig_size=(10,6)
     ):
         super().__init__()
         self.category = category
@@ -31,6 +32,7 @@ class HistWorkflowAnalysis(WorkflowAnalysis):
         self.fixed_bins = fixed_bins
         self.max_x_bound = max_x_bound
         self.x_label = x_label
+        self.fig_size = fig_size
 
     def analyze(
         self, workflow, workflow_name: str = "main workflow", op_number: int = 1
@@ -39,20 +41,20 @@ class HistWorkflowAnalysis(WorkflowAnalysis):
         analysis = HistAnalysis(
             self.file_path, self.metadata, self.top_x, self.category, self.sort, 
             show=False, log_y=self.log_y, fixed_bins=self.fixed_bins, 
-            max_x_bound=self.max_x_bound, x_label=self.x_label
+            max_x_bound=self.max_x_bound, x_label=self.x_label,fig_size=self.fig_size
         )
         analysis.analyze(
             op.get_input(),
-            f"{self.metadata.name}_{workflow_name}_op{op_number}_input.png",
-            f"Input of operator class {op.__class__.__name__}",
+            f"{self.metadata.name}_{workflow_name}_op{op_number}_input.svg",
+            f"",
         )
 
         while op is not None:
             if isinstance(op, GroupingOperator):
                 analysis.analyze(
                     op.get_merged_output(),
-                    f"{self.metadata.name}_{workflow_name}_op{op_number}_output.png",
-                    f"Output of operator class {op.__class__.__name__}",
+                    f"{self.metadata.name}_{workflow_name}_op{op_number}_output.svg",
+                    f"",
                 )
                 for i, internal_w in enumerate(op.get_workflows(), start=1):
                     # Recursively analyze subworkflows
@@ -63,8 +65,8 @@ class HistWorkflowAnalysis(WorkflowAnalysis):
             else:
                 analysis.analyze(
                     op.get_output(),
-                    f"{self.metadata.name}_{workflow_name}_op{op_number}_output.png",
-                    f"Output of operator class {op.__class__.__name__}",
+                    f"{self.metadata.name}_{workflow_name}_op{op_number}_output.svg",
+                    f"",
                 )
             op = op.get_next_operator()
             op_number += 1

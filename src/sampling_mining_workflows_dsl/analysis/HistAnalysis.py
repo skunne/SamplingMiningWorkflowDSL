@@ -26,6 +26,7 @@ class HistAnalysis:
         fixed_bins: int = None,
         max_x_bound: float = None,
         x_label: str = None,
+        fig_size=(10,6),
     ):
         self.metadata = metadata
         # Wether data should be treated as categorical data or continous
@@ -39,6 +40,7 @@ class HistAnalysis:
         self.fixed_bins = fixed_bins
         self.max_x_bound = max_x_bound
         self.x_label = x_label
+        self.fig_size = fig_size
 
     def analyze(self, s: Set, file_name: str, op_info: str):
         # From Set to List of Metadata values
@@ -89,7 +91,7 @@ class HistAnalysis:
 
         # Set style and create figure with better styling
         plt.style.use('default')  # Reset to default style
-        fig, ax = plt.subplots(figsize=(10, 6))
+        fig, ax = plt.subplots(figsize=self.fig_size)
         fig.patch.set_facecolor('white')
         
         if not self.category:
@@ -134,23 +136,23 @@ class HistAnalysis:
             
             # Set custom x-label or default
             x_axis_label = self.x_label if self.x_label else "Category"
-            ax.set_xlabel(x_axis_label, fontsize=12, fontweight='bold')
+            ax.set_xlabel(x_axis_label, fontsize=16, fontweight='bold')
             
             # Rotate x-axis labels for better readability
-            plt.xticks(rotation=45, ha='right')
+            plt.xticks(rotation=45, ha='right', fontsize=14)
 
         # Enhanced styling
-        ax.set_title(op_info, fontsize=14, fontweight='bold', pad=20)
+        ax.set_title(op_info, fontsize=18, fontweight='bold', pad=20)
         
         # Y-axis label with log scale indication
         y_label = "Frequency"
         if self.log_y:
             y_label += " (Log Scale)"
-        ax.set_ylabel(y_label, fontsize=12, fontweight='bold')
+        ax.set_ylabel(y_label, fontsize=16, fontweight='bold')
         
         # Set custom x-label for continuous data if provided
         if not self.category and self.x_label:
-            ax.set_xlabel(self.x_label, fontsize=12, fontweight='bold')
+            ax.set_xlabel(self.x_label, fontsize=16, fontweight='bold')
         
         # Grid styling
         ax.grid(True, alpha=0.3, linestyle='-', linewidth=0.5)
@@ -162,8 +164,8 @@ class HistAnalysis:
             spine.set_linewidth(1)
         
         # Make axes more visible with intermediate ticks
-        ax.tick_params(axis='both', which='major', labelsize=10, colors='#333333')
-        ax.tick_params(axis='both', which='minor', labelsize=8, colors='#666666')
+        ax.tick_params(axis='both', which='major', labelsize=14, colors='#333333')
+        ax.tick_params(axis='both', which='minor', labelsize=12, colors='#666666')
         
         # Add minor ticks for Y axis for better readability
         ax.yaxis.set_minor_locator(ticker.AutoMinorLocator())
