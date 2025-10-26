@@ -74,6 +74,29 @@ class Workflow:
         self.add_operator(cast("Operator", manual_sampling_operator))
         return self
     
+    def get_all_set_from_workflow(self, index=1):
+        sets = {}
+        if index==1:
+            sets[index] = (self._input,None)
+            index += 1
+
+        op = self.get_root()
+        while op is not None:
+            if not isinstance(op, GroupingOperator):
+                if hasattr(op, "_output") and op._output is not None:
+                    sets[index] = (op._output,op)  # Fix: use index as key, not the Set object
+                    index += 1
+            else:
+                for internal_w in op.get_workflows():
+                    grouping_sets = self.get_all_set_from_workflow(internal_w, index)
+                    index = index + len(grouping_sets)
+                    sets.update(grouping_sets)  # Fix: use update() instead of extend()
+            op = op.get_next_operator()
+
+        return sets
+    
+    def get_internal_set_by_index(self,index):
+        return self.get_all_set_from_workflow()[index]
         
     def get_internal_set_by_id(self, set_id: str) -> Set | None:
         current: Operator= self._root
