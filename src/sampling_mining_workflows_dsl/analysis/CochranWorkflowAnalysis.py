@@ -4,7 +4,7 @@ from sampling_mining_workflows_dsl.operator.selection.sampling.automatic.RandomS
 from sampling_mining_workflows_dsl.analysis.CochranTest import CochranTest
 
 
-class CochranWorkflowAnalays(WorkflowAnalysis):
+class CochranWorkflowAnalysis(WorkflowAnalysis):
     def init(self,confidence_level=0.95,margin_error=0.05,p=0.5):
         super().init()
         self.confidence_level=confidence_level
