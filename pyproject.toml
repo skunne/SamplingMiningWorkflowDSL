@@ -8,10 +8,7 @@ version = "0.3.0"
 description = "A python internal DSL to specify, execute and analyse mining software repositories sampling workflows."
 readme = "README.md"
 requires-python = ">=3.13"
-authors = [
-    { name = "Romain Lefeuvre", email = "romain.lefeuvre@inria.fr"},
-    { name = "Maiwenn Le Gouaster", email = "maiwenn.le-goasteller@irisa.fr"}
-]
+
 dependencies = [
     "python-dateutil>=2.9.0",
     "graphviz>=0.21",
