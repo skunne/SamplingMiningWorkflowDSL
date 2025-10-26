@@ -40,5 +40,5 @@ class CochranTest:
 
     def is_representative(self) -> bool:
         required_sample_size = self.cochran_sample_size
-        sample_size = self.op.cardinality
+        sample_size = self.op.get_cardinality()
         return sample_size >= required_sample_size
