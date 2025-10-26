@@ -87,7 +87,6 @@ class HistAnalysis:
             series = df["value"]
             data = filtered_data
 
-        unique_values = series.nunique()
 
         # Set style and create figure with better styling
         plt.style.use('default')  # Reset to default style
@@ -95,6 +94,7 @@ class HistAnalysis:
         fig.patch.set_facecolor('white')
         
         if not self.category:
+            unique_values = series.nunique()
             # Determine number of bins
             if self.fixed_bins is not None:
                 bins = self.fixed_bins
@@ -124,7 +124,7 @@ class HistAnalysis:
                 value_counts = series.value_counts().sort_index(ascending=True)
             
             # Create bar chart with better styling
-            bars = value_counts.plot(
+            value_counts.plot(
                 kind="bar", 
                 ax=ax,
                 color="#000000",  # Dark blue color
@@ -176,9 +176,11 @@ class HistAnalysis:
         
         # Format axis numbers with separators
         # Format x-axis with space separators for thousands
-        ax.xaxis.set_major_formatter(ticker.FuncFormatter(lambda x, p: f"{x:,.0f}"))
-        # Format y-axis with space separators for thousands
-        ax.yaxis.set_major_formatter(ticker.FuncFormatter(lambda x, p: f"{x:,.0f}"))
+        if not self.category:
+
+            ax.xaxis.set_major_formatter(ticker.FuncFormatter(lambda x, p: f"{x:,.0f}"))
+            # Format y-axis with space separators for thousands
+            ax.yaxis.set_major_formatter(ticker.FuncFormatter(lambda x, p: f"{x:,.0f}"))
         
         plt.tight_layout()
         return fig, ax
