@@ -25,7 +25,7 @@ class CochranWorkflowAnalysis(WorkflowAnalysis):
                 print("Actual Sample Size:", actual_sample_size)
 
                 if cochran_test.is_representative():
-                    print("The sample is pass Cochran's test.")
+                    print("The sample pass Cochran's test.")
                 else:
                     print("The sample do not pass Cochran's test.")
 
