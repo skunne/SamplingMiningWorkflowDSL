@@ -22,7 +22,7 @@ class CochranTest:
             float: Required sample size
     """
     def cochran_sample_size(self):
-        sampling_frame_size = len(self.op.get_input())
+        sampling_frame_size = self.op.get_input().size()
 
         # Get Z-value for given confidence level
         z = norm.ppf(1 - (1 - self.confidence_level) / 2)
@@ -39,6 +39,6 @@ class CochranTest:
 
 
     def is_representative(self) -> bool:
-        required_sample_size = self.cochran_sample_size
+        required_sample_size = self.cochran_sample_size()
         sample_size = self.op.get_cardinality()
         return sample_size >= required_sample_size
