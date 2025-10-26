@@ -195,11 +195,11 @@ class KSWorkflowAnalysis(WorkflowAnalysis):
 
 
     
-    def get_all_set_from_workflow(self, workflow: Workflow, index=0):
+    def get_all_set_from_workflow(self, workflow: Workflow, index=1):
         sets = {}
-        if index==0:
+        if index==1:
             sets[index] = (workflow._input,None)
-            index += 2
+            index += 1
 
         op = workflow.get_root()
         while op is not None:

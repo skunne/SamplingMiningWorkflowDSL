@@ -176,9 +176,9 @@ class HistAnalysis:
         
         # Format axis numbers with separators
         # Format x-axis with space separators for thousands
-        ax.xaxis.set_major_formatter(ticker.FuncFormatter(lambda x, p: f"{x:,.0f}".replace(',', ' ')))
+        ax.xaxis.set_major_formatter(ticker.FuncFormatter(lambda x, p: f"{x:,.0f}"))
         # Format y-axis with space separators for thousands
-        ax.yaxis.set_major_formatter(ticker.FuncFormatter(lambda x, p: f"{x:,.0f}".replace(',', ' ')))
+        ax.yaxis.set_major_formatter(ticker.FuncFormatter(lambda x, p: f"{x:,.0f}"))
         
         plt.tight_layout()
         return fig, ax
