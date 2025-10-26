@@ -74,9 +74,9 @@ class Workflow:
         self.add_operator(cast("Operator", manual_sampling_operator))
         return self
     
-    def get_all_set_from_workflow(self, index=1):
+    def get_all_set_from_workflow(self, index=0):
         sets = {}
-        if index==1:
+        if index==0:
             sets[index] = (self._input,None)
             index += 1
 

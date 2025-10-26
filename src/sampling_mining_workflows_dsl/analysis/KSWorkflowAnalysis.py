@@ -195,9 +195,9 @@ class KSWorkflowAnalysis(WorkflowAnalysis):
 
 
     
-    def get_all_set_from_workflow(self, workflow: Workflow, index=1):
+    def get_all_set_from_workflow(self, workflow: Workflow, index=0):
         sets = {}
-        if index==1:
+        if index==0:
             sets[index] = (workflow._input,None)
             index += 1
 
