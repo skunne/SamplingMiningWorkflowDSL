@@ -205,13 +205,13 @@ class KSWorkflowAnalysis(WorkflowAnalysis):
         while op is not None:
             if not isinstance(op, GroupingOperator):
                 if hasattr(op, "_output") and op._output is not None:
-                    sets[index] = (op._output,op)  # Fix: use index as key, not the Set object
+                    sets[index] = (op._output,op)  
                     index += 1
             else:
                 for internal_w in op.get_workflows():
                     grouping_sets = self.get_all_set_from_workflow(internal_w, index)
                     index = index + len(grouping_sets)
-                    sets.update(grouping_sets)  # Fix: use update() instead of extend()
+                    sets.update(grouping_sets)  
             op = op.get_next_operator()
 
         return sets
