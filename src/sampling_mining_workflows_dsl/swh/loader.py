@@ -6,7 +6,6 @@ from sampling_mining_workflows_dsl.element.Loader import Loader
 from sampling_mining_workflows_dsl.element.loader.CsvLoader import CsvLoader
 from sampling_mining_workflows_dsl.element.Repository import Repository
 from sampling_mining_workflows_dsl.element.Set import Set
-from sampling_mining_workflows_dsl.github_seart.metadata import all_metadatas
 from sampling_mining_workflows_dsl.metadata.MetadataDate import MetadataDate
 from sampling_mining_workflows_dsl.metadata.MetadataNumber import MetadataNumber
 from sampling_mining_workflows_dsl.metadata.MetadataString import MetadataString

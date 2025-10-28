@@ -55,8 +55,8 @@ class KSWorkflowAnalysis(WorkflowAnalysis):
                 return
             
             comparison_count = 0
-            for i in range(1, len(tuples)+1):
-                for j in range(i+1, len(tuples)+1):
+            for i in range(0, len(tuples)):
+                for j in range(i, len(tuples)):
                     set_1, op_1 = tuples[i]
                     set_2, op_2 = tuples[j]
                     
