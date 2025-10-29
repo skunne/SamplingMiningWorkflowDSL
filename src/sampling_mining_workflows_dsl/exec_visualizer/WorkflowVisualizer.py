@@ -4,6 +4,8 @@ from typing import cast
 from graphviz import Digraph
 
 from sampling_mining_workflows_dsl.constraint.BoolConstraintString import BoolConstraintString
+from sampling_mining_workflows_dsl.constraint.BoolConstraint import BoolConstraint
+
 from sampling_mining_workflows_dsl.operator.clustering.GroupingOperator import GroupingOperator
 from sampling_mining_workflows_dsl.operator.selection.filter.FilterOperator import FilterOperator
 
@@ -79,14 +81,51 @@ class WorkflowVisualizer:
                 self.global_set_counter += 1
             
             # Label formatting with global set number
-            if isinstance(op, FilterOperator) and isinstance(
-                op.get_constraint(), BoolConstraintString
-            ):
-                constraint = cast(
-                    "BoolConstraintString", op.get_constraint()
-                ).get_string_constraint()
-                formatted_size = f"{output_set.flatten_set().size():,}".replace(',', ' ')
-                label = f"Filter Operator\n{constraint}\n\nSET#{self.global_set_counter}\n Size : {formatted_size}"
+            if isinstance(op, FilterOperator) :
+                if isinstance(op.get_constraint(), BoolConstraintString):
+                    constraint = cast(
+                        "BoolConstraintString", op.get_constraint()
+                    ).get_string_constraint()
+                    formatted_size = f"{output_set.flatten_set().size():,}".replace(',', ' ')
+                    label = f"Filter Operator\n{constraint}\n\nSET#{self.global_set_counter}\n Size : {formatted_size}"
+                elif isinstance(op.get_constraint(), BoolConstraint):
+                        constraint = cast(
+                        "BoolConstraint", op.get_constraint()
+                    )
+                        function=constraint.constraint
+                        
+                        metadata=constraint.targeted_metadatas[0].name
+                        # Get method name from qualname
+                        method_name = "unknown"
+                        if hasattr(function, '__qualname__'):
+                            qualname = function.__qualname__
+                            # Extract method name (e.g., "MetadataDate.is_after.<locals>.<lambda>" -> "is_after")
+                            parts = qualname.split('.')
+                            for part in parts:
+                                if part.startswith('is_') or part in ['greater_than', 'less_than', 'equal']:
+                                    method_name = part
+                                    break
+                        
+                        # Get argument from closure
+                        argument_value = "unknown"
+                        if hasattr(function, '__closure__') and function.__closure__:
+                            for cell in function.__closure__:
+                                try:
+                                    cell_content = cell.cell_contents
+                                    # Skip metadata objects, look for actual values
+                                    if not hasattr(cell_content, 'name') and not hasattr(cell_content, 'type'):
+                                        # This might be the argument value
+                                        if isinstance(cell_content, (str, int, float, bool)):
+                                            argument_value = str(cell_content)
+                                        elif hasattr(cell_content, '__class__'):
+                                            # For dates, objects, etc.
+                                            argument_value = str(cell_content)
+                                        break
+                                except (ValueError, AttributeError):
+                                    continue
+                        formatted_size = f"{output_set.flatten_set().size():,}".replace(',', ' ')
+
+                        label = f"Filter Operator\n{metadata}.{method_name}({argument_value})\n\nSET#{self.global_set_counter}\n Size : {formatted_size}"
             elif isinstance(op, GroupingOperator):
                 label = f"Grouping\nOperator"  # No number for grouping
             else:
