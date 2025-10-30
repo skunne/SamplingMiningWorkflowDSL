@@ -88,11 +88,11 @@ class Workflow:
                     index += 1
             else:
                 for internal_w in op.get_workflows():
-                    grouping_sets = self.get_all_set_from_workflow(internal_w, index)
+                    grouping_sets = internal_w.get_all_set_from_workflow(index)
                     index = index + len(grouping_sets)
                     sets.update(grouping_sets)  # Fix: use update() instead of extend()
             op = op.get_next_operator()
-
+        print(sets)
         return sets
     
     def get_internal_set_by_index(self,index):
