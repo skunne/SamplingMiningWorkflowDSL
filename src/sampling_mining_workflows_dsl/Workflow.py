@@ -92,7 +92,6 @@ class Workflow:
                     index = index + len(grouping_sets)
                     sets.update(grouping_sets)  # Fix: use update() instead of extend()
             op = op.get_next_operator()
-        print(sets)
         return sets
     
     def get_internal_set_by_index(self,index):
