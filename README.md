@@ -161,46 +161,6 @@ workflow = (
 results = workflow.execute_workflow()
 ```
 
-### Advanced Workflow with Clustering and Analysis
-
-```python
-from sampling_mining_workflows_dsl.Workflow import Workflow
-from sampling_mining_workflows_dsl.element.loader.LoaderFactory import LoaderFactory
-from sampling_mining_workflows_dsl.element.writer.WriterFactory import WritterFactory
-from sampling_mining_workflows_dsl.metadata.Metadata import Metadata
-
-# Define metadata
-url = Metadata.of_string("url")
-language = Metadata.of_string("language")
-id_meta = Metadata.of_string("id")
-commit_nb = Metadata.of_double("commitNb")
-
-json_loader = LoaderFactory.json_loader
-json_writer = WritterFactory.json_writer
-
-# Create a stratified sampling workflow
-stratified_workflow = (
-    Workflow()
-    .grouping_operator(
-        Workflow()
-        .filter_operator(commit_nb.is_less_than(2000))
-        .random_selection_operator(10),
-        Workflow()
-        .filter_operator(commit_nb.is_between(2000, 5000))
-        .random_selection_operator(10),
-        Workflow()
-        .filter_operator(commit_nb.is_greater_or_equal_than(5000))
-        .random_selection_operator(10),
-    )
-    .input(json_loader("repositories.json", id_meta, commit_nb, url, language))
-    .output(json_writer("stratified_sample.json"))
-)
-
-# Execute the workflow
-results = stratified_workflow.execute_workflow()
-```
-
-
 <!-- LICENSE -->
 ## License
 
