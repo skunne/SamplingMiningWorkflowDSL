@@ -90,9 +90,27 @@ PythonWorkflowDSL/
 
 Before using this DSL, ensure you have Python 3.8+ installed on your system.
 
-Recommended: install and use [`uv`](https://github.com/astral-sh/uv) for fast, reproducible Python environments.
+Recommended: install and use [`uv`](https://github.com/astral-sh/uv) 
 
-### Installation
+### Starting from scratch
+
+1. ```uv init```
+2. ```uv pip install https://github.com/RomainLefeuvre/samplingMiningWorkflowDSL.git```   
+### Template Repository
+
+A complete template with examples is available at:
+```
+git@github.com:RomainLefeuvre/msr_papers_sampling_workflows.git
+```
+
+Clone the template to get started quickly:
+```bash
+git clone https://github.com/RomainLefeuvre/SamplinMiningWorkflowDSLTemplate.git
+```
+
+
+### Dev environment installation
+If you want to contribute to this repository, you can clone and setup locally this project :
 
 1. Clone this repository:
    ```bash
@@ -110,18 +128,6 @@ Recommended: install and use [`uv`](https://github.com/astral-sh/uv) for fast, r
   source .venv/bin/activate
   ```
 
-### Template Repository
-
-A complete template with examples is available at:
-```
-git@github.com:RomainLefeuvre/msr_papers_sampling_workflows.git
-```
-
-Clone the template to get started quickly:
-```bash
-git clone git@github.com:RomainLefeuvre/msr_papers_sampling_workflows.git
-cd msr_papers_sampling_workflows
-```
 
 
 

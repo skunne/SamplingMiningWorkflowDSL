@@ -1,13 +1,18 @@
 [build-system]
-requires = ["hatchling", "setuptools>=65.0", "wheel"]
+requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "sampling_mining_workflows_dsl"
-version = "0.3.0"
+name = "sampling-mining-workflows-dsl"
+version = "0.0.1"
 description = "A python internal DSL to specify, execute and analyse mining software repositories sampling workflows."
 readme = "README.md"
 requires-python = ">=3.13"
+authors = [
+    { name = "Romain Lefeuvre", email = "contact@romainlefeuvre.com" },
+    { name = "Maïwenn Le Goasteller"} # No email provided for Maïwenn Le Goasteller
+]
+
 
 dependencies = [
     "python-dateutil>=2.9.0",
