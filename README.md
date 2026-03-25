@@ -96,6 +96,10 @@ Recommended: install and use [`uv`](https://github.com/astral-sh/uv)
 
 1. ```uv init```
 2. ```uv pip install https://github.com/RomainLefeuvre/samplingMiningWorkflowDSL.git```   
+
+you can also use the published version on pypi
+1. ```pip install sampling-mining-workflows-dsl```
+
 ### Template Repository
 
 A complete template with examples is available at:
