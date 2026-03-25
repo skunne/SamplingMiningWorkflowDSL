@@ -26,7 +26,11 @@ T = TypeVar("T")
 
 
 class OperatorBuilder:
-    def __init__(self, workflow: "Workflow"):
+    def __init__(self, workflow: "Workflow | None" = None):
+        if workflow is None:
+            from sampling_mining_workflows_dsl.Workflow import Workflow as WorkflowClass
+
+            workflow = WorkflowClass()
         self.workflow = workflow
 
     def grouping_operator(self, *workflows: "OperatorBuilder") -> "OperatorBuilder":
@@ -145,3 +149,43 @@ class OperatorBuilder:
 
     def output(self, writer) -> "Workflow":
         return self.workflow.output(writer)
+
+    def cluster_sampling_operator(self, n_clusters, *cluster_constraints):
+        """
+        Adds a cluster sampling grouping operator to the workflow.
+        Args:
+            n_clusters (int): Number of clusters to select.
+            *cluster_constraints: Constraints defining clusters.
+        Returns:
+            WorkflowBuilder: self (for chaining)
+        """
+        return self.grouping_operator(
+            *[OperatorBuilder().filter_operator(constraint) for constraint in cluster_constraints]
+        ).random_selection_operator(n_clusters)
+
+
+    def stratified_random_operator(self, sample_size, *strata_constraints):
+        """
+        Adds a stratified random grouping operator to the workflow.
+        Args:
+            sample_size (int): Number of samples per stratum.
+            *  strata_constraints: Constraints defining strata.
+        Returns:
+            WorkflowBuilder: self (for chaining)
+        """
+        return self.grouping_operator(
+            *[OperatorBuilder().filter_operator(constraint).random_selection_operator(sample_size) for constraint in strata_constraints]
+        )
+
+
+    def quota_operator(self, *quota_constraints):
+        """
+        Adds a quota grouping operator to the workflow.
+        Args:
+            *quota_constraints: Constraints defining quota groups (can be composed constraints).
+        Returns:
+            WorkflowBuilder: self (for chaining)
+        """
+        return self.grouping_operator(
+            *[OperatorBuilder().filter_operator(constraint) for constraint in quota_constraints]
+        )

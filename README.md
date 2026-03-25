@@ -90,6 +90,8 @@ PythonWorkflowDSL/
 
 Before using this DSL, ensure you have Python 3.8+ installed on your system.
 
+Recommended: install and use [`uv`](https://github.com/astral-sh/uv) for fast, reproducible Python environments.
+
 ### Installation
 
 1. Clone this repository:
@@ -98,15 +100,15 @@ Before using this DSL, ensure you have Python 3.8+ installed on your system.
    cd SamplingMiningWorflowDSL
    ```
 
-2. Install the DSL package (dependencies will be installed automatically):
-   ```bash
-   pip install .
-   ```
+2. (Recommended) Install dependencies with `uv`:
+  ```bash
+  uv sync
+  ```
 
-3. Install in development mode (optional):
-   ```bash
-   pip install -e .
-   ```
+3. Activate the virtual environment created by `uv`:
+  ```bash
+  source .venv/bin/activate
+  ```
 
 ### Template Repository
 

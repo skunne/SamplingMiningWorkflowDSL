@@ -29,37 +29,10 @@ def main():
         .output(json_writer("out.json"))
     )
 
-    # w = (WorkflowBuilder()
-    #      .input(json_loader(input_path, id_, commit_nb, url, language))
-    #      .grouping_operator(
-    #         filter_operator(commit_nb.is_greater_than(2000)).filter_operator(commit_nb.is_less_than(5000)),
-    #         filter_operator(language.is_equal("JavaScript"))
-    #      )
-    #     .random_selection_operator(1)
-    #     .output(json_writer("out.json"))
-    # )
-
-    # w = (
-    #     Workflow()
-    #     .input(json_loader(input_path, id_, commit_nb, url, language))
-    #     .grouping_operator(
-    #         Workflow()
-    #         .filter_operator(commit_nb.is_greater_than(1000))
-    #         .random_selection_operator(10)
-    #     )
-    #     .output(json_writer("out.json"))
-    # )
 
     w.execute_workflow()
-    # w.analyze_workflow(commit_nb)
-
-    WorkflowVisualizer(w).generate_graph()
-
-    print(w)
-
+    
 
 if __name__ == "__main__":
     main()
 
-# .filter_operator(language.is_equal("JavaScript"))
-# .manual_sampling_operator("8","62", "90")
