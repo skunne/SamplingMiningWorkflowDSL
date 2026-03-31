@@ -16,7 +16,7 @@ class Operator(ABC):
         self.workflow = worflow
         self._input: Set | None = None
         self._output: Set | None = None
-        self._output_writter: Writer | None = None
+        self._output_writer: Writer | None = None
         self._next_operator: Operator | None = None
         self._previous_operator: Operator | None = None
         # Loader to add metadata on output during the execution
@@ -68,8 +68,8 @@ class Operator(ABC):
         if self._next_operator:
             self._next_operator._input = self._output
             self._next_operator.execute()
-        elif self._output_writter:
-            self._output_writter.write_set(self._output)
+        elif self._output_writer:
+            self._output_writer.write_set(self._output)
         return self
 
     def get_workflow_root_operator(self) -> "Operator":
@@ -99,8 +99,8 @@ class Operator(ABC):
                 result.add_element(element)
         return result
 
-    def output(self, writter: Writer) -> "Operator":
-        self._output_writter = writter
+    def output(self, writer: Writer) -> "Operator":
+        self._output_writer = writer
         return self
 
     def input_set(self, input_set: Set) -> "Operator":

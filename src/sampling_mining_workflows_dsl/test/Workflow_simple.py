@@ -1,5 +1,5 @@
 from sampling_mining_workflows_dsl.element.loader.LoaderFactory import LoaderFactory
-from sampling_mining_workflows_dsl.element.writer.WriterFactory import WritterFactory
+from sampling_mining_workflows_dsl.element.writer.WriterFactory import WriterFactory
 from sampling_mining_workflows_dsl.exec_visualizer.WorkflowVisualizer import WorkflowVisualizer
 from sampling_mining_workflows_dsl.metadata.Metadata import Metadata
 from sampling_mining_workflows_dsl.operator.clustering.SubWorkflowOperatorBuilder import (
@@ -8,7 +8,7 @@ from sampling_mining_workflows_dsl.operator.clustering.SubWorkflowOperatorBuilde
 from sampling_mining_workflows_dsl.WorkflowBuilder import WorkflowBuilder
 
 json_loader = LoaderFactory.json_loader
-json_writer = WritterFactory.json_writer
+json_writer = WriterFactory.json_writer
 filter_operator = SubWorkflowOperatorBuilder.filter_operator
 
 
