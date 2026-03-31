@@ -45,23 +45,3 @@ class CsvLoader(Loader):
         except OSError as e:
             raise RuntimeError("Error reading the CSV file", e) from e
 
-    def create_repository_from_map(self, csv_row: dict[str, Any]) -> Repository:
-        id_metadata_value = csv_row.get(self.metadata_id_name)
-
-        if id_metadata_value is None or id_metadata_value == "":
-            raise ValueError(f"Invalid ID {self.metadata_id_name}")
-
-        repo = Repository(self.metadatas.get(self.metadata_id_name))
-
-        metadata_values: list[MetadataValue] = []
-        for metadata in self.metadatas.values():
-            try:
-                metadata_value = metadata.create_metadata_value(csv_row.get(metadata.name))
-                metadata_values.append(metadata_value)
-            except Exception as e:
-                raise ValueError(
-                    f"Error creating metadata value for '{metadata.name}' with value '{csv_row.get(metadata.name)}'",
-                ) from e
-
-        repo.add_metadata_values(metadata_values)
-        return repo
