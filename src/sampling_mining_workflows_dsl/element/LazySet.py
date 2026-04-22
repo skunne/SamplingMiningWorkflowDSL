@@ -1,4 +1,5 @@
 import random
+from itertools import chain
 from functools import cmp_to_key
 from collections import OrderedDict
 
@@ -8,8 +9,9 @@ from sampling_mining_workflows_dsl.element.Set import Set
 
 
 class LazySet(Set):
-    def __init__(self):
+    def __init__(self, iterator):
         super().__init__()
+        self.iterator = iterator
         self.n_seen = 0
 
     def __hash__(self):
@@ -30,9 +32,10 @@ class LazySet(Set):
         #     raise IndexError("Index out of range")
         # return list(self.elements.values())[index]
     def __next__(self) -> Element:
-        pass
+        return next(self.iterator)
+    
     def __iter__(self):
-        return self
+        return self.iterator
     
     def remove_all_elements(self) -> "Set":
         raise NotImplementedError
@@ -70,15 +73,19 @@ class LazySet(Set):
         #         max_depth = max(max_depth, 1 + element.get_depth())
         # return max_depth
     
-    def union(self, other: "Set") -> "UnionLazySet":
-        return UnionLazySet(self, other)
+    def union(self, other: "Set | LazySet") -> "LazySet":
+        other_iterator = other.iterator if isinstance(other, LazySet) else iter(other.elements)
+        iterator = chain(self.iterator, other_iterator)
+        return LazySet(iterator)
     
-    def intersection(self, other: "Set") -> "IntersectionLazySet":
-        return IntersectionLazySet(self, other)
+    def intersection(self, other: "Set") -> "LazySet":
+        iterator = (x for x in self if x in other.elements)
+        return LazySet(iterator)
     
-    def difference(self, other: "Set") -> "Set":
+    def difference(self, other: "Set") -> "LazySet":
         """Return a new set with elements in this set but not in other"""
-        return DifferenceLazySet(self, other)
+        iterator = (x for x in self if x not in other.elements)
+        return LazySet(iterator)
     
     def symmetric_difference(self, other: "Set") -> "Set":
         raise NotImplementedError
@@ -143,6 +150,7 @@ class LazySet(Set):
         # return self.elements.get(id)
     
     def set_id(self, set_id: str) -> "Set":
+        raise NotImplementedError
         self.set_id = set_id
         return self 
 
@@ -168,7 +176,7 @@ class LazySet(Set):
         # return flattened
 
     def get_random_subset(self, subset_size: int, seed: int) -> "Set":
-        # Reservoir sampling algorithm R
+        '''Reservoir sampling algorithm R'''
         reservoir = [next(self) for _ in range(subset_size)]
         random.seed(seed)
         for i, x in enumerate(self, start = subset_size):
@@ -223,53 +231,3 @@ class LazySet(Set):
         #     result += "]"
 
         # return result
-
-class UnionLazySet(LazySet):
-    def __init__(self, lazy_set: LazySet, other: Set | LazySet):
-        super().__init__()
-        self.lazy_set = lazy_set
-        if isinstance(other, LazySet):
-            self.other = other
-        else:
-            self.other = iter(other.elements)
-    def __next__(self) -> Element:
-        try:
-            x = next(self.lazy_set)
-        except StopIteration:
-            x = next(self.other)
-        return x
-    
-class IntersectionLazySet(LazySet):
-    def __init__(self, lazy_set: LazySet, other: Set):
-        super().__init__()
-        self.lazy_set = lazy_set
-        self.other = other
-    def __next__(self) -> Element:
-        x = next(self.lazy_set)
-        while x not in self.other.elements:
-            x = next(self.lazy_set)
-        return x
-    
-class DifferenceLazySet(LazySet):
-    def __init__(self, lazy_set: LazySet, minus_set: Set):
-        super().__init__()
-        self.lazy_set = lazy_set
-        self.minus_set = minus_set
-    def __next__(self) -> Element:
-        x = next(self.lazy_set)
-        while x in self.minus_set.elements:
-            x = next(self.lazy_set)
-        return x
-
-    
-class FilteredLazySet(LazySet):
-    def __init__(self, lazy_set, predicate):
-        super().__init__()
-        self.lazy_set = lazy_set
-        self.predicate = predicate
-    def __next__(self) -> Element:
-        x = next(self.lazy_set)
-        while not self.predicate(x):
-            x = next(self.lazy_set)
-        return x
-
