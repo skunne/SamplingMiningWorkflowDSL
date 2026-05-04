@@ -2,7 +2,7 @@ import random
 from functools import cmp_to_key
 from collections import OrderedDict
 from itertools import chain
-from typing import Iterable, Any
+from typing import Iterable, Self
 
 from sampling_mining_workflows_dsl.constraint.Comparator import Comparator
 from sampling_mining_workflows_dsl.element.Element import Element
@@ -36,10 +36,10 @@ class EagerSet(LazySet):
         return result
     
     @classmethod
-    def from_iter_of_maps(cls, metadatas, it: Iterable):
+    def from_iter_of_maps(cls, metadatas, maps: Iterable) -> Self:
         id = metadatas[0]
         eager_set = cls()
-        for row in it:
+        for row in maps:
             repo = Repository(id)
             metadata_values = [m.create_metadata_value(row[m.name]) for m in metadatas]
             repo.add_metadata_values(metadata_values)
@@ -50,11 +50,9 @@ class EagerSet(LazySet):
         yield from self.elements.values()
 
     def __hash__(self):
-        return hash(tuple(self.elements.items())) + super().__hash__()
+        return hash(tuple(self.elements.items())) + hash("EagerSet")
 
     def __eq__(self, other):
-        if not super().__eq__(other):
-            return False
         if not isinstance(other, EagerSet):
             return False
         return self.elements == other.elements

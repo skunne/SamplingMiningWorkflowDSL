@@ -26,7 +26,7 @@ def test_intersection():
     it1 = ((str(x), x, 2*x) for x in range(10))
     ls1 = LazySet(it1)
     metadatas = [Metadata.of_string("id"), Metadata.of_integer("val"), Metadata.of_integer("double")]
-    it2 = [{"val": x, "irrelevant": "ABCDEFGHIJ"[x], "id": str(x), "double": 2*x} for x in (101, 102, 103, 4, 5, 15, 16)]
+    it2 = [{"val": x, "irrelevant": "ABCDEFGHIJ"[x%10], "id": str(x), "double": 2*x} for x in (101, 102, 103, 4, 5, 15, 16)]
     eg2 = EagerSet.from_iter_of_maps(metadatas, it2)
     
     lsi = ls1.intersection(eg2)
@@ -37,7 +37,7 @@ def test_difference():
     it1 = ((str(x), x, 2*x) for x in range(10))
     ls1 = LazySet(it1)
     metadatas = [Metadata.of_string("id"), Metadata.of_integer("val"), Metadata.of_integer("double")]
-    it2 = [{"val": x, "irrelevant": "ABCDEFGHIJ"[x], "id": str(x), "double": 2*x} for x in (101, 102, 103, 4, 5, 15, 16)]
+    it2 = [{"val": x, "irrelevant": "ABCDEFGHIJ"[x%10], "id": str(x), "double": 2*x} for x in (101, 102, 103, 4, 5, 15, 16)]
     eg2 = EagerSet.from_iter_of_maps(metadatas, it2)
 
     lsd = ls1.difference(eg2)
@@ -71,8 +71,9 @@ def test_flatten_set():
     assert(isinstance(lsf, LazySet) and len(list(lsf)) == 10+3+5)
 
 def test_get_random_subset():
-    elements = [(str(x), x, math.factorial(x % 200)) for x in range(1000)]
-    ls1 = LazySet(iter(elements))
+    metadatas = [Metadata.of_string("id"), Metadata.of_integer("val"), Metadata.of_integer("fact")]
+    elements = [{"val": x, "irrelevant": chr(ord('A') + x%26), "id": str(x), "fact": math.factorial(x % 200)} for x in range(1000)]
+    ls1 = LazySet.from_iter_of_maps(metadatas, elements)
     
     subset_size, seed = (10, 42)
     rand_lazy_1 = ls1.get_random_subset(subset_size, seed)
@@ -85,6 +86,5 @@ def test_get_random_subset():
     assert(rand_eager_1 == rand_eager_2)
 
     metadatas = [Metadata.of_string("id"), Metadata.of_integer("val"), Metadata.of_integer("fact")]
-    elements = [{"val": x, "irrelevant": chr(ord('A') + x%26), "id": str(x), "fact": math.factorial(x % 200)} for x in range(1000)]
     eg = EagerSet.from_iter_of_maps(metadatas, elements)
     assert rand_eager_1.is_subset(eg)

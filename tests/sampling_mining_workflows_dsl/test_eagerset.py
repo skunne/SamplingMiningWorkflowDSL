@@ -11,10 +11,10 @@ def test_from_dataset():
 
     eager_set = EagerSet.from_dataset(metadatas, dataset)
     assert(isinstance(eager_set, EagerSet))
-    assert(eager_set.size == 10)
+    assert(eager_set.size() == 10)
 
     element0 = eager_set.get_element_by_index(0)
-    e = Repository(metadatas[0].name)
+    e = Repository(metadatas[0])
     e.add_metadata_values([metadatas[0].create_metadata_value("0"), metadatas[1].create_metadata_value(0), metadatas[2].create_metadata_value(0)])
     assert(element0 == e)
 
@@ -24,10 +24,10 @@ def test_from_iter_of_maps():
 
     eager_set = EagerSet.from_iter_of_maps(metadatas, it)
     assert(isinstance(eager_set, EagerSet))
-    assert(eager_set.size == 10)
+    assert(eager_set.size() == 10)
 
     element0 = eager_set.get_element_by_index(0)
-    e = Repository(metadatas[0].name)
+    e = Repository(metadatas[0])
     e.add_metadata_values([metadatas[0].create_metadata_value("0"), metadatas[1].create_metadata_value(0), metadatas[2].create_metadata_value(0)])
     assert(element0 == e)
     
@@ -37,11 +37,11 @@ def test_from_lazyset():
 
     eager_set = EagerSet.from_lazyset(lazy_set)
     assert(isinstance(eager_set, EagerSet))
-    assert(eager_set.size == 10)
+    assert(eager_set.size() == 10)
 
     element0 = eager_set.get_element_by_index(0)
     metadatas = [Metadata.of_string("id"), Metadata.of_integer("val"), Metadata.of_integer("double")]
-    e = Repository(metadatas[0].name)
+    e = Repository(metadatas[0])
     e.add_metadata_values([metadatas[0].create_metadata_value("0"), metadatas[1].create_metadata_value(0), metadatas[2].create_metadata_value(0)])
     assert(element0 == e)
     
@@ -53,7 +53,7 @@ def test_allcreationsareequal():
 
     set_from_ds = EagerSet.from_dataset(metadatas, dataset)
     set_from_maps = EagerSet.from_iter_of_maps(metadatas, maps)
-    set_from_lazy = EagerSet.from_lazyset
+    set_from_lazy = EagerSet.from_lazyset(lazy_set)
 
     assert(set_from_ds == set_from_maps)
     assert(set_from_maps == set_from_lazy)
@@ -103,7 +103,7 @@ def test_remove_all_elements():
     es1 = EagerSet.from_iter_of_maps(metadatas, [{"id": str(x), "val": x, "double": 2*x} for x in range(10)])
     es2 = EagerSet.from_iter_of_maps(metadatas, [])
     es1.remove_all_elements()
-    assert(es1.size == 0)
+    assert(es1.size() == 0)
     assert(es1 == es2)
 
 def test_add_element():
@@ -206,7 +206,7 @@ def test_is_superset():
     assert(es0.is_superset(es3) is False)
 
     assert(es1.is_superset(es0) is True)
-    assert(es1.is_superset(es1) is False)
+    assert(es1.is_superset(es1) is True)
     assert(es1.is_superset(es2) is False)
     assert(es1.is_superset(es3) is False)
 
@@ -263,10 +263,10 @@ def test_size():
     es1 = EagerSet.from_iter_of_maps(metadatas, ({"id": str(x), "val": x, "double": 2*x} for x in (0, 1, 2)))
     es2 = EagerSet.from_iter_of_maps(metadatas, ({"id": str(x), "val": x, "double": 2*x} for x in (1, 2,)))
     es3 = EagerSet.from_iter_of_maps(metadatas, ({"id": str(x), "val": x, "double": 2*x} for x in (3,)))
-    assert(es0.size == 0)
-    assert(es1.size == 3)
-    assert(es1.size == 2)
-    assert(es1.size == 1)
+    assert(es0.size() == 0)
+    assert(es1.size() == 3)
+    assert(es2.size() == 2)
+    assert(es3.size() == 1)
 
 #def get_element(self, id: str) -> Element:
 def test_get_element():

@@ -1,11 +1,14 @@
 import random
-from itertools import chain
+from itertools import chain, islice
 from functools import cmp_to_key
 from collections import OrderedDict
 
+from typing import Self, Iterable, TYPE_CHECKING
+
 from sampling_mining_workflows_dsl.constraint.Comparator import Comparator
 from sampling_mining_workflows_dsl.element.Element import Element
-from typing import Self, Iterable, TYPE_CHECKING
+from sampling_mining_workflows_dsl.element.Repository import Repository
+
 if TYPE_CHECKING:
     from sampling_mining_workflows_dsl.element.Set import EagerSet
 
@@ -15,6 +18,17 @@ class LazySet(Element):
         super().__init__()
         self.iterator = iterator
         self.n_seen = 0
+    
+    @classmethod
+    def from_iter_of_maps(cls, metadatas, maps: Iterable) -> Self:
+        id = metadatas[0]
+        def it():
+            for row in maps:
+                repo = Repository(id)
+                metadata_values = [m.create_metadata_value(row[m.name]) for m in metadatas]
+                repo.add_metadata_values(metadata_values)
+                yield repo
+        return cls(it())
 
     def __hash__(self):
         raise NotImplementedError
@@ -166,13 +180,15 @@ class LazySet(Element):
                     yield from flattened(x)
                 else:
                     yield x
-        def iterator():
-            return flattened(self)
-        return type(self)(iterator)
+        return type(self)(flattened(self))
 
     def get_random_subset(self, subset_size: int, seed: int) -> Self:
         '''Reservoir sampling algorithm R'''
-        reservoir = [next(self) for _ in range(subset_size)]
+        reservoir = list(islice(self, subset_size))
+        if subset_size > len(reservoir):
+            print(f"Caution, subset size is larger than the size of the original set, subset size: {subset_size}, current set size: {len(reservoir)}")
+            subset_size = len(reservoir)
+            return type(self)(iter(reservoir))
         random.seed(seed)
         for i, x in enumerate(self, start = subset_size):
             j = random.randrange(i+1)
