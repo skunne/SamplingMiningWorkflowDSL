@@ -5,10 +5,12 @@ from collections import OrderedDict
 
 from sampling_mining_workflows_dsl.constraint.Comparator import Comparator
 from sampling_mining_workflows_dsl.element.Element import Element
-from sampling_mining_workflows_dsl.element.Set import Set
+from typing import Self, Iterable, TYPE_CHECKING
+if TYPE_CHECKING:
+    from sampling_mining_workflows_dsl.element.Set import EagerSet
 
 
-class LazySet(Set):
+class LazySet(Element):
     def __init__(self, iterator):
         super().__init__()
         self.iterator = iterator
@@ -22,7 +24,7 @@ class LazySet(Set):
         raise NotImplementedError
         # if not super().__eq__(other):
         #     return False
-        # if not isinstance(other, Set):
+        # if not isinstance(other, LazySet):
         #     return False
         # return self.elements == other.elements
     
@@ -37,12 +39,12 @@ class LazySet(Set):
     def __iter__(self):
         return self.iterator
     
-    def remove_all_elements(self) -> "Set":
+    def remove_all_elements(self) -> "LazySet":
         raise NotImplementedError
         # self.elements.clear()
         # self.ids.clear()
         # return self
-    def add_element(self, element: Element) -> "Set":
+    def add_element(self, element: Element) -> "LazySet":
         raise NotImplementedError
         # if not element.get_id() in self.ids:
         #     self.elements[element.get_id()]=element
@@ -52,7 +54,7 @@ class LazySet(Set):
 
         # return self
 
-    def sort_by_metadata(self, metadata_name: str, comparator: Comparator, reverse=False) -> "Set":
+    def sort_by_metadata(self, metadata_name: str, comparator: Comparator, reverse=False) -> "LazySet":
         raise NotImplementedError
         # # Sort the items of the OrderedDict
         # sorted_items = sorted(
@@ -69,28 +71,28 @@ class LazySet(Set):
         raise NotImplementedError
         # max_depth = 1
         # for element in self.elements.values():
-        #     if isinstance(element, Set):
+        #     if isinstance(element, LazySet):
         #         max_depth = max(max_depth, 1 + element.get_depth())
         # return max_depth
     
-    def union(self, other: "Set | LazySet") -> "LazySet":
-        other_iterator = other.iterator if isinstance(other, LazySet) else iter(other.elements)
+    def union(self, other: Iterable) -> Self:
+        other_iterator = iter(other)
         iterator = chain(self.iterator, other_iterator)
-        return LazySet(iterator)
+        return type(self)(iterator)
     
-    def intersection(self, other: "Set") -> "LazySet":
+    def intersection(self, other: "EagerSet") -> Self:
         iterator = (x for x in self if x in other.elements)
-        return LazySet(iterator)
+        return type(self)(iterator)
     
-    def difference(self, other: "Set") -> "LazySet":
+    def difference(self, other: "EagerSet") -> Self:
         """Return a new set with elements in this set but not in other"""
         iterator = (x for x in self if x not in other.elements)
-        return LazySet(iterator)
+        return type(self)(iterator)
     
-    def symmetric_difference(self, other: "Set") -> "Set":
+    def symmetric_difference(self, other: "EagerSet") -> "LazySet":
         raise NotImplementedError
         # """Return a new set with elements in either set but not in both"""
-        # sym_diff = Set()
+        # sym_diff = LazySet()
         
         # # Add elements from this set that are not in other
         # for id, element in self.elements.items():
@@ -104,7 +106,7 @@ class LazySet(Set):
         
         # return sym_diff
     
-    def is_subset(self, other: "Set") -> bool:
+    def is_subset(self, other: "EagerSet") -> bool:
         raise NotImplementedError
         # """Return True if all elements in this set are also in other"""
         # for id in self.elements.keys():
@@ -112,12 +114,12 @@ class LazySet(Set):
         #         return False
         # return True
     
-    def is_superset(self, other: "Set") -> bool:
+    def is_superset(self, other: "EagerSet") -> bool:
         raise NotImplementedError
         # """Return True if all elements in other set are also in this set"""
         # return other.is_subset(self)
     
-    def is_disjoint(self, other: "Set") -> bool:
+    def is_disjoint(self, other: "EagerSet") -> bool:
         raise NotImplementedError
         # """Return True if this set and other have no elements in common"""
         # for id in self.elements.keys():
@@ -149,33 +151,26 @@ class LazySet(Set):
         #     raise RuntimeError(f"Element with id {id} not found in the set")
         # return self.elements.get(id)
     
-    def set_id(self, set_id: str) -> "Set":
-        raise NotImplementedError
-        self.set_id = set_id
-        return self 
+    # def set_id(self, set_id: str) -> "LazySet":
+    #     raise NotImplementedError
+    #     self.set_id = set_id
+    #     return self 
 
     def get_id(self):
-        if self.set_id is not None:
-            return self.set_id
-        
-        set_id = ""
-        for id in self.elements.keys():
-            set_id = set_id + "_" + str(id)
-        return set_id
+        return str(id(self))
 
-    def flatten_set(self) -> "Set":
-        raise NotImplementedError
-        # flattened = Set()
-        # for element in self.get_elements():
-        #     if isinstance(element, Set):
-        #         # Recursively flatten nested Sets
-        #         flattened.union(element.flatten_set())
-        #     else:
-        #         # Add non-Set, non-list elements directly
-        #         flattened.add_element(element)
-        # return flattened
+    def flatten_set(self) -> Self:
+        def flattened(s):
+            for x in s:
+                if isinstance(x, LazySet):
+                    yield from flattened(x)
+                else:
+                    yield x
+        def iterator():
+            return flattened(self)
+        return type(self)(iterator)
 
-    def get_random_subset(self, subset_size: int, seed: int) -> "Set":
+    def get_random_subset(self, subset_size: int, seed: int) -> Self:
         '''Reservoir sampling algorithm R'''
         reservoir = [next(self) for _ in range(subset_size)]
         random.seed(seed)
@@ -183,19 +178,15 @@ class LazySet(Set):
             j = random.randrange(i+1)
             if j < subset_size:
                 reservoir[j] = x
-
-        result = Set()
-        for x in reservoir:
-            result.add_element(x)
-        return result
+        return type(self)(iter(reservoir))
 
     def get_elements(self) -> list[Element]:
         raise NotImplementedError
         # return list(self.elements.values())
     
-    def clone(self) -> "Set":
+    def clone(self) -> "EagerSet":
         raise NotImplementedError
-        # cloned_set = Set()
+        # cloned_set = LazySet()
         # for element in self.get_elements():
         #     cloned_set.add_element(element)
         # return cloned_set
@@ -216,8 +207,8 @@ class LazySet(Set):
         # for i in range(element_to_print):
         #     next_element = elements_list[i]
 
-        #     if isinstance(next_element, Set):
-        #         # Recursively call to_string for nested Sets
+        #     if isinstance(next_element, LazySet):
+        #         # Recursively call to_string for nested LazySets
         #         result += f"\n{next_element.to_string(level + 4)}"
         #     else:
         #         result += str(next_element)

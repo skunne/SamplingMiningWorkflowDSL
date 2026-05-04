@@ -1,5 +1,5 @@
 from sampling_mining_workflows_dsl.constraint.Constraint import Constraint
-from sampling_mining_workflows_dsl.element.Set import Set
+from sampling_mining_workflows_dsl.element.Set import EagerSet
 from sampling_mining_workflows_dsl.operator.Operator import Operator
 from tqdm import tqdm
 
@@ -11,7 +11,7 @@ class FilterOperator(Operator):
         constraint.set_workflow(workflow)
 
     def execute(self):
-        self._output = Set()
+        self._output = EagerSet()
         elements = self._input.get_elements()
         
         # Add progress bar for filtering operation

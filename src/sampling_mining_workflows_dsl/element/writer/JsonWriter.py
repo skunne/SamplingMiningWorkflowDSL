@@ -3,7 +3,7 @@ from datetime import datetime, date
 from pathlib import Path
 
 from sampling_mining_workflows_dsl.element.Repository import Repository
-from sampling_mining_workflows_dsl.element.Set import Set
+from sampling_mining_workflows_dsl.element.Set import EagerSet
 
 
 # Note: Can handle both flat sets (depth 1) and nested sets (depth > 1)
@@ -11,9 +11,9 @@ class JsonWriter:
     def __init__(self, set_path: str):
         self.set_path = Path(set_path)
 
-    def write_set(self, set_obj: Set):
+    def write_set(self, set_obj: EagerSet):
         print(f"Writing set to JSON at: {self.set_path}")
-        if not isinstance(set_obj, Set):
+        if not isinstance(set_obj, EagerSet):
             raise TypeError("Expected a Set object")
 
         elements = set_obj.elements.values()
@@ -32,7 +32,7 @@ class JsonWriter:
 
     def _serialize_element(self, element):
         """Serialize an element, which can be a Repository or a Set."""
-        if isinstance(element, Set):
+        if isinstance(element, EagerSet):
             # Nested Set: serialize as an array of elements
             return [self._serialize_element(elem) for elem in element.elements.values()]
         elif isinstance(element, Repository):
