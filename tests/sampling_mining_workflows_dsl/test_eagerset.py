@@ -58,27 +58,18 @@ def test_allcreationsareequal():
     assert(set_from_ds == set_from_maps)
     assert(set_from_maps == set_from_lazy)
 
-
-
-def test_iter():
-    metadatas = [Metadata.of_string("id"), Metadata.of_integer("val"), Metadata.of_integer("double")]
-    elements = [(str(x), x, 2*x) for x in range(10)]
-    es = EagerSet.from_iter(iter(elements))
-    for x,y in zip(iter(es), elements, strict=True):
-        ry = Repository(metadatas[0].name)
-        ry.add_metadata_values(y)
-        assert(x == y)
-
 def test_hash():
-    es1 = EagerSet.from_iter(((str(x), x, 2*x) for x in range(10)))
-    es2 = EagerSet.from_iter(((str(x), x, 2*x) for x in range(100, 103)))
+    metadatas = [Metadata.of_string("id"), Metadata.of_integer("val"), Metadata.of_integer("double")]
+    es1 = EagerSet.from_iter_of_maps(metadatas, ({"id": str(x), "val": x, "double": 2*x} for x in range(10)))
+    es2 = EagerSet.from_iter_of_maps(metadatas, ({"id": str(x), "val": x, "double": 2*x} for x in range(100, 103)))
     assert(hash(es1) != hash(es2))
     s = {es1, es2}
     
 def test_eq():
-    es1 = EagerSet.from_iter(((str(x), x, 2*x) for x in range(10)))
-    es2 = EagerSet.from_iter(((str(x), x, 2*x) for x in range(100, 103)))
-    es3 = EagerSet.from_iter(((str(x), x, 2*x) for x in range(10)))
+    metadatas = [Metadata.of_string("id"), Metadata.of_integer("val"), Metadata.of_integer("double")]
+    es1 = EagerSet.from_iter_of_maps(metadatas, ({"id": str(x), "val": x, "double": 2*x} for x in range(10)))
+    es2 = EagerSet.from_iter_of_maps(metadatas, ({"id": str(x), "val": x, "double": 2*x} for x in range(100, 103)))
+    es3 = EagerSet.from_iter_of_maps(metadatas, ({"id": str(x), "val": x, "double": 2*x} for x in range(10)))
     
     assert(es1 == es1)
     assert(es1 != es2)
@@ -93,204 +84,210 @@ def test_eq():
     assert(es3 == es3)
     
 def test_get_element_by_index():
-    es1 = EagerSet.from_iter(((str(x), x, 2*x) for x in range(10)))
+    metadatas = [Metadata.of_string("id"), Metadata.of_integer("val"), Metadata.of_integer("double")]
+    es1 = EagerSet.from_iter_of_maps(metadatas, ({"id": str(x), "val": x, "double": 2*x} for x in range(10)))
+    
     with pytest.raises(IndexError):
         es1.get_element_by_index(-11)
     with pytest.raises(IndexError):
         es1.get_element_by_index(11)
+    
     e = es1.get_element_by_index(2)
-    i, v, d = Metadata.of_string("id"), Metadata.of_integer("val"), Metadata.of_integer("double")
+    i, v, d = metadatas
     r = Repository(i)
-    r.add_metadata_values([MetadataValue(str(2)), MetadataValue(2), MetadataValue(2+2)])
-    r.add_metadata_values([Metadata.from_string(str(2)), Metadata.from_integer(2), Metadata.from_integer(4])
+    r.add_metadata_values([i.create_metadata_value("2"), v.create_metadata_value(2), d.create_metadata_value(2+2)])
+    assert(e == r)
     
-def remove_all_elements(self) -> "EagerSet":
-    self.elements.clear()
-    self.ids.clear()
-    return self
-def add_element(self, element: Element) -> "EagerSet":
-    if not element.get_id() in self.ids:
-        self.elements[element.get_id()]=element
-        self.ids.add(element.get_id())
-    else :
-        print(f"{element.get_id()} Already present")
+def test_remove_all_elements():
+    metadatas = [Metadata.of_string("id"), Metadata.of_integer("val"), Metadata.of_integer("double")]
+    es1 = EagerSet.from_iter_of_maps(metadatas, [{"id": str(x), "val": x, "double": 2*x} for x in range(10)])
+    es2 = EagerSet.from_iter_of_maps(metadatas, [])
+    es1.remove_all_elements()
+    assert(es1.size == 0)
+    assert(es1 == es2)
 
-    return self
+def test_add_element():
+    metadatas = [Metadata.of_string("id"), Metadata.of_integer("val"), Metadata.of_integer("double")]
 
-def sort_by_metadata(self, metadata_name: str, comparator: Comparator, reverse=False) -> "EagerSet":
-    # Sort the items of the OrderedDict
-    sorted_items = sorted(
-        self.elements.items(),
-        key=cmp_to_key(lambda x, y: comparator.compare(x[1], y[1])),
-        reverse=reverse
-    )
-
-    # Rebuild as OrderedDict
-    self.elements = OrderedDict(sorted_items)
-    return self
-
-def get_depth(self) -> int:
-    max_depth = 1
-    for element in self.elements.values():
-        if isinstance(element, EagerSet):
-            max_depth = max(max_depth, 1 + element.get_depth())
-    return max_depth
-
-def union(self, other: Iterable) -> "LazySet":
-    if isinstance(other, EagerSet):
-        for element in other.elements.values():
-            self.add_element(element)
-        return self
-    else:
-        return LazySet(chain(iter(self), iter(other)))
-
-def intersection(self, other: "EagerSet") -> "EagerSet":
-    if not isinstance(other, EagerSet):
-        raise NotImplementedError
-    common_elements = EagerSet()
-    for id, element in self.elements.items():
-        if id in other.elements.keys():
-            common_elements.add_element(element)
-    return common_elements
-
-def difference(self, other: "EagerSet") -> "EagerSet":
-    if not isinstance(other, EagerSet):
-        raise NotImplementedError
-    """Return a new set with elements in this set but not in other"""
-    diff_elements = EagerSet()
-    for id, element in self.elements.items():
-        if id not in other.elements.keys():
-            diff_elements.add_element(element)
-    return diff_elements
-
-def symmetric_difference(self, other: "EagerSet") -> "EagerSet":
-    if not isinstance(other, EagerSet):
-        raise NotImplementedError
-    """Return a new set with elements in either set but not in both"""
-    sym_diff = EagerSet()
+    es1 = EagerSet.from_iter_of_maps(metadatas, [])
+    i, v, d = metadatas
+    for x in range(10):
+        r = Repository(i)
+        r.add_metadata_values([i.create_metadata_value(str(x)), v.create_metadata_value(x), d.create_metadata_value(x+x)])
+        es1.add_element(r)
     
-    # Add elements from this set that are not in other
-    for id, element in self.elements.items():
-        if id not in other.elements.keys():
-            sym_diff.add_element(element)
+    es2 = EagerSet.from_iter_of_maps(metadatas, [{"id": str(x), "val": x, "double": 2*x} for x in range(10)])
+    assert(es1 == es2)
+
+#def sort_by_metadata(self, metadata_name: str, comparator: Comparator, reverse=False) -> "EagerSet":
+def test_sort_by_metadata():
+    pass
+
+def test_get_depth():
+    pass
+
+def test_union():
+    metadatas = [Metadata.of_string("id"), Metadata.of_integer("val"), Metadata.of_integer("double")]
+    es1 = EagerSet.from_iter_of_maps(metadatas, ({"id": str(x), "val": x, "double": 2*x} for x in range(10)))
+    es2 = EagerSet.from_iter_of_maps(metadatas, ({"id": str(x), "val": x, "double": 2*x} for x in range(100, 103)))
+    es3 = EagerSet.from_iter_of_maps(metadatas, ({"id": str(x), "val": x, "double": 2*x} for x in list(range(10))+list(range(100,103))))
     
-    # Add elements from other set that are not in this
-    for id, element in other.elements.items():
-        if id not in self.elements.keys():
-            sym_diff.add_element(element)
+    esu = es1.union(es2)
+
+    assert(esu == es3)
+
+def test_intersection():
+    metadatas = [Metadata.of_string("id"), Metadata.of_integer("val"), Metadata.of_integer("double")]
+    es1 = EagerSet.from_iter_of_maps(metadatas, ({"id": str(x), "val": x, "double": 2*x} for x in range(10)))
+    es2 = EagerSet.from_iter_of_maps(metadatas, ({"id": str(x), "val": x, "double": 2*x} for x in (4, 12, 5, 13)))
+    es3 = EagerSet.from_iter_of_maps(metadatas, ({"id": str(x), "val": x, "double": 2*x} for x in (4, 5)))
     
-    return sym_diff
+    esi = es1.intersection(es2)
+    assert(esi == es3)
 
-def is_subset(self, other: "EagerSet") -> bool:
-    """Return True if all elements in this set are also in other"""
-    for id in self.elements.keys():
-        if id not in other.elements.keys():
-            return False
-    return True
-
-def is_superset(self, other: "EagerSet") -> bool:
-    """Return True if all elements in other set are also in this set"""
-    return other.is_subset(self)
-
-def is_disjoint(self, other: "EagerSet") -> bool:
-    """Return True if this set and other have no elements in common"""
-    for id in self.elements.keys():
-        if id in other.elements.keys():
-            return False
-    return True
-
-def is_empty(self) -> bool:
-    """Return True if the set is empty"""
-    return len(self.elements) == 0
-
-
-
-def size(self) -> int:
-    return len(self.elements)
-
-def get_element(self, id: str) -> Element:
-    if id not in self.elements:
-        raise RuntimeError(f"Element with id {id} not found in the set")
-    return self.elements[id]
-
-# def set_id(self, set_id: str) -> "EagerSet":
-#     self.set_id = set_id
-#     return self 
-
-# def get_id(self):
-#     if self.set_id is not None:
-#         return self.set_id
+def test_difference():
+    metadatas = [Metadata.of_string("id"), Metadata.of_integer("val"), Metadata.of_integer("double")]
+    es1 = EagerSet.from_iter_of_maps(metadatas, ({"id": str(x), "val": x, "double": 2*x} for x in range(5)))
+    es2 = EagerSet.from_iter_of_maps(metadatas, ({"id": str(x), "val": x, "double": 2*x} for x in (4, 12, 5, 0, 13)))
+    es3 = EagerSet.from_iter_of_maps(metadatas, ({"id": str(x), "val": x, "double": 2*x} for x in (1, 2, 3)))
+    es4 = EagerSet.from_iter_of_maps(metadatas, ({"id": str(x), "val": x, "double": 2*x} for x in (12, 5, 13)))
     
-#     set_id = ""
-#     for id in self.elements.keys():
-#         set_id = set_id + "_" + str(id)
-#     return set_id
+    es1d2 = es1.difference(es2)
+    assert(es1d2 == es3)
+    es2d1 = es2.difference(es1)
+    assert(es2d1 == es4)
 
-def flatten_set(self) -> "EagerSet":
-    flattened = EagerSet()
-    for element in self.get_elements():
-        if isinstance(element, EagerSet):
-            # Recursively flatten nested Sets
-            flattened.union(element.flatten_set())
-        else:
-            # Add non-Set, non-list elements directly
-            flattened.add_element(element)
-    return flattened
+def test_symmetric_difference():
+    metadatas = [Metadata.of_string("id"), Metadata.of_integer("val"), Metadata.of_integer("double")]
+    es1 = EagerSet.from_iter_of_maps(metadatas, ({"id": str(x), "val": x, "double": 2*x} for x in range(5)))
+    es2 = EagerSet.from_iter_of_maps(metadatas, ({"id": str(x), "val": x, "double": 2*x} for x in (4, 12, 5, 0, 13)))
+    es3 = EagerSet.from_iter_of_maps(metadatas, ({"id": str(x), "val": x, "double": 2*x} for x in (1, 2, 3, 12, 5, 13)))
+    
+    esd = es1.symmetric_difference(es2)
+    assert(esd == es3)
+
+def test_is_subset():
+    metadatas = [Metadata.of_string("id"), Metadata.of_integer("val"), Metadata.of_integer("double")]
+    es0 = EagerSet.from_iter_of_maps(metadatas, [])
+    es1 = EagerSet.from_iter_of_maps(metadatas, ({"id": str(x), "val": x, "double": 2*x} for x in (0, 1, 2)))
+    es2 = EagerSet.from_iter_of_maps(metadatas, ({"id": str(x), "val": x, "double": 2*x} for x in (4, 12, 1, 5, 0, 2, 13)))
+    es3 = EagerSet.from_iter_of_maps(metadatas, ({"id": str(x), "val": x, "double": 2*x} for x in (1, 2, 3, 12, 5, 13)))
+
+    assert(es0.is_subset(es0) is True)
+    assert(es0.is_subset(es1) is True)
+    assert(es0.is_subset(es2) is True)
+    assert(es0.is_subset(es3) is True)
+
+    assert(es1.is_subset(es0) is False)
+    assert(es1.is_subset(es1) is True)
+    assert(es1.is_subset(es2) is True)
+    assert(es1.is_subset(es3) is False)
+
+    assert(es2.is_subset(es0) is False)
+    assert(es2.is_subset(es1) is False)
+    assert(es2.is_subset(es2) is True)
+    assert(es2.is_subset(es3) is False)
+
+    assert(es3.is_subset(es0) is False)
+    assert(es3.is_subset(es1) is False)
+    assert(es3.is_subset(es2) is False)
+    assert(es3.is_subset(es3) is True)
+
+def test_is_superset():
+    metadatas = [Metadata.of_string("id"), Metadata.of_integer("val"), Metadata.of_integer("double")]
+    es0 = EagerSet.from_iter_of_maps(metadatas, [])
+    es1 = EagerSet.from_iter_of_maps(metadatas, ({"id": str(x), "val": x, "double": 2*x} for x in (0, 1, 2)))
+    es2 = EagerSet.from_iter_of_maps(metadatas, ({"id": str(x), "val": x, "double": 2*x} for x in (4, 12, 1, 5, 0, 2, 13)))
+    es3 = EagerSet.from_iter_of_maps(metadatas, ({"id": str(x), "val": x, "double": 2*x} for x in (1, 2, 3, 12, 5, 13)))
+
+    assert(es0.is_superset(es0) is True)
+    assert(es0.is_superset(es1) is False)
+    assert(es0.is_superset(es2) is False)
+    assert(es0.is_superset(es3) is False)
+
+    assert(es1.is_superset(es0) is True)
+    assert(es1.is_superset(es1) is False)
+    assert(es1.is_superset(es2) is False)
+    assert(es1.is_superset(es3) is False)
+
+    assert(es2.is_superset(es0) is True)
+    assert(es2.is_superset(es1) is True)
+    assert(es2.is_superset(es2) is True)
+    assert(es2.is_superset(es3) is False)
+
+    assert(es3.is_superset(es0) is True)
+    assert(es3.is_superset(es1) is False)
+    assert(es3.is_superset(es2) is False)
+    assert(es3.is_superset(es3) is True)
+
+def test_is_disjoint():
+    metadatas = [Metadata.of_string("id"), Metadata.of_integer("val"), Metadata.of_integer("double")]
+    es0 = EagerSet.from_iter_of_maps(metadatas, [])
+    es1 = EagerSet.from_iter_of_maps(metadatas, ({"id": str(x), "val": x, "double": 2*x} for x in (0, 1, 2)))
+    es2 = EagerSet.from_iter_of_maps(metadatas, ({"id": str(x), "val": x, "double": 2*x} for x in (1, 2, 3)))
+    es3 = EagerSet.from_iter_of_maps(metadatas, ({"id": str(x), "val": x, "double": 2*x} for x in (3,)))
+    assert(es0.is_disjoint(es0) is True)
+    assert(es0.is_disjoint(es1) is True)
+    assert(es0.is_disjoint(es2) is True)
+    assert(es0.is_disjoint(es3) is True)
+
+    assert(es1.is_disjoint(es0) is True)
+    assert(es1.is_disjoint(es1) is False)
+    assert(es1.is_disjoint(es2) is False)
+    assert(es1.is_disjoint(es3) is True)
+
+    assert(es2.is_disjoint(es0) is True)
+    assert(es2.is_disjoint(es1) is False)
+    assert(es2.is_disjoint(es2) is False)
+    assert(es2.is_disjoint(es3) is False)
+
+    assert(es3.is_disjoint(es0) is True)
+    assert(es3.is_disjoint(es1) is True)
+    assert(es3.is_disjoint(es2) is False)
+    assert(es3.is_disjoint(es3) is False)
+
+def test_is_empty():
+    metadatas = [Metadata.of_string("id"), Metadata.of_integer("val"), Metadata.of_integer("double")]
+    es0 = EagerSet.from_iter_of_maps(metadatas, [])
+    es1 = EagerSet.from_iter_of_maps(metadatas, ({"id": str(x), "val": x, "double": 2*x} for x in (0, 1, 2)))
+    es2 = EagerSet.from_iter_of_maps(metadatas, ({"id": str(x), "val": x, "double": 2*x} for x in (1, 2, 3)))
+    es3 = EagerSet.from_iter_of_maps(metadatas, ({"id": str(x), "val": x, "double": 2*x} for x in (3,)))
+    assert(es0.is_empty() is True)
+    assert(es1.is_empty() is False)
+    assert(es2.is_empty() is False)
+    assert(es3.is_empty() is False)
+
+def test_size():
+    metadatas = [Metadata.of_string("id"), Metadata.of_integer("val"), Metadata.of_integer("double")]
+    es0 = EagerSet.from_iter_of_maps(metadatas, [])
+    es1 = EagerSet.from_iter_of_maps(metadatas, ({"id": str(x), "val": x, "double": 2*x} for x in (0, 1, 2)))
+    es2 = EagerSet.from_iter_of_maps(metadatas, ({"id": str(x), "val": x, "double": 2*x} for x in (1, 2,)))
+    es3 = EagerSet.from_iter_of_maps(metadatas, ({"id": str(x), "val": x, "double": 2*x} for x in (3,)))
+    assert(es0.size == 0)
+    assert(es1.size == 3)
+    assert(es1.size == 2)
+    assert(es1.size == 1)
+
+#def get_element(self, id: str) -> Element:
+def test_get_element():
+    metadatas = [Metadata.of_string("id"), Metadata.of_integer("val"), Metadata.of_integer("double")]
+    es0 = EagerSet.from_iter_of_maps(metadatas, [])
+    es1 = EagerSet.from_iter_of_maps(metadatas, ({"id": str(x), "val": x, "double": 2*x} for x in (0, 1, 2)))
+    
+    with pytest.raises(RuntimeError):
+        x = es0.get_element("2")
+    with pytest.raises(RuntimeError):
+        x = es1.get_element("3")
+    
+    x = es1.get_element("2")
+    i, v, d = metadatas
+    y = Repository(i)
+    y.add_metadata_values([i.create_metadata_value("2"), v.create_metadata_value(2), d.create_metadata_value(2+2)])
+    assert(x == y)
+
+def test_flatten_set():
+    pass
 
 
-def get_random_subset(self, subset_size: int, seed: int) -> "EagerSet":
-    elements_list = self.get_elements()
-    if subset_size > len(elements_list):
-        print(
-            f"Caution, subset size is larger than the size of the original set, subset size: {subset_size}, current set size: {len(elements_list)}"
-        )
-        subset_size = len(elements_list)
-
-    random.seed(seed)
-    random_indices = random.sample(range(len(elements_list)), subset_size)
-    original_array = list(elements_list)
-
-    result = EagerSet()
-    for index in random_indices:
-        result.add_element(original_array[index])
-
-    return result
-
-def get_elements(self) -> list[Element]:
-    return list(self.elements.values())
-
-def clone(self) -> "EagerSet":
-    cloned_set = EagerSet()
-    for element in self.get_elements():
-        cloned_set.add_element(element)
-    return cloned_set
-
-def __str__(self) -> str:
-    return self.to_string(0)
-
-def to_string(self, level: int = 0) -> str:
-    truncate_after = 10
-    indent = "    " * level
-
-    result = f"{indent}(size={len(self.elements)})["
-    elements_list = self.get_elements()
-    element_to_print = min(truncate_after, len(self.elements))
-
-    for i in range(element_to_print):
-        next_element = elements_list[i]
-
-        if isinstance(next_element, EagerSet):
-            # Recursively call to_string for nested Sets
-            result += f"\n{next_element.to_string(level + 4)}"
-        else:
-            result += str(next_element)
-
-        if i != element_to_print - 1:
-            result += ","
-
-    if len(self.elements) > truncate_after:
-        result += "...]"
-    else:
-        result += "]"
-
-    return result
+def test_get_random_subset():
+    pass
