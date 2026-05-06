@@ -34,7 +34,7 @@ def test_workflow_lazyset():
     w = (
         WorkflowBuilder()
         .input(LoaderFactory.csv_lazy_loader(input_path, id_, commit_nb, language))
-        #.filter_operator("commitNb > 2000 and commitNb < 7000")
+        .filter_operator("commitNb > 20000 and commitNb < 700000")
         .random_selection_operator(40)
         .output(json_writer("out_lazy.json"))
     )
@@ -45,4 +45,4 @@ def test_workflow_lazyset():
     with open("out_lazy.json", 'r') as f:
         written_data = json.load(f)
         assert(len(written_data) == 40)
-        #assert(all(2000 < d["commitNb"] < 7000 for d in written_data))
+        assert(all(20000 < d["commitNb"] < 700000 for d in written_data))
