@@ -63,12 +63,6 @@ class LazySet(Element):
 
     def add_element(self, element: Element) -> Self:
         raise NotImplementedError
-        # if not element.get_id() in self.ids:
-        #     self.elements[element.get_id()]=element
-        #     self.ids.add(element.get_id())
-        # else :
-        #     print(f"{element.get_id()} Already present")
-        # return self
 
     def sort_by_metadata(self, metadata_name: str, comparator: Comparator, reverse=False) -> Self:
         raise NotImplementedError
@@ -100,34 +94,25 @@ class LazySet(Element):
         raise NotImplementedError
     
     def is_subset(self, other: "EagerSet") -> bool:
-        raise NotImplementedError
         # """Return True if all elements in this set are also in other"""
-        # for id in self.elements.keys():
-        #     if id not in other.elements.keys():
-        #         return False
-        # return True
+        raise NotImplementedError
     
     def is_superset(self, other: "EagerSet") -> bool:
-        raise NotImplementedError
         # """Return True if all elements in other set are also in this set"""
-        # return other.is_subset(self)
+        raise NotImplementedError
     
     def is_disjoint(self, other: "EagerSet") -> bool:
-        raise NotImplementedError
         # """Return True if this set and other have no elements in common"""
-        # for id in self.elements.keys():
-        #     if id in other.elements.keys():
-        #         return False
-        # return True
+        raise NotImplementedError
     
     def is_empty(self) -> bool:
         """Return True if the set is empty"""
-        # if self.n_seen > 0:
-        #     return False
-        # else:
-        #     raise NotImplementedError
         raise NotImplementedError
-        #return len(self.elements) == 0
+        # TODO
+        # if self.fully_consumed:
+        #     return self.n_seen == 0
+        # else:
+        #     raise SomeCustomException
     
     def size(self) -> int:
         raise NotImplementedError
@@ -139,12 +124,8 @@ class LazySet(Element):
 
     def get_element(self, id: str) -> Element:
         raise NotImplementedError
-        # if not id  in self.elements.keys():
-        #     raise RuntimeError(f"Element with id {id} not found in the set")
-        # return self.elements.get(id)
     
     # def set_id(self, set_id: str) -> Self:
-    #     raise NotImplementedError
     #     self.set_id = set_id
     #     return self 
 
@@ -175,18 +156,21 @@ class LazySet(Element):
         return type(self)(iter(reservoir))
 
     def get_elements(self) -> list[Element]:
+        """Not implemented; use `s = EagerSet.from_lazyset(...); s.get_elements()` if you really need to"""
         raise NotImplementedError
-        # return list(self.elements.values())
+        # return list(self.iterator)
     
     def clone(self) -> Self:
+        """Not implemented; better to directly create two iterators from the source"""
         raise NotImplementedError
         iter1, iter2 = itertools.tee(self.iterator) # not recommended
         self.iterator = iter1
         return LazySet(iter2)
     
-    def __str__(self) -> str:
-        raise NotImplementedError
-        # return self.to_string(0)
+    def __repr__(self) -> str:
+        return "f'LazySet<0x{id(self):x}>()"
+        # TODO
+        # return f'LazySet<0x{id(self):x}>(n_seen={self.n_seen}, fully_consumed={self.fully_consumed})'
 
     def to_string(self, level: int = 0) -> str:
-        raise NotImplementedError
+        return repr(self)

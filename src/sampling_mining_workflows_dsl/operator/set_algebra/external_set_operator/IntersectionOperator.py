@@ -15,5 +15,6 @@ T = TypeVar("T")
 class IntersectionOperator(ExternalSetOperator):
     def __init__(self, workflow,indexes=[-1]):
         super().__init__(workflow)
-        self.set_function = EagerSet.intersection      
+    def set_function(self, a, b):
+        return a.intersection(b)
     

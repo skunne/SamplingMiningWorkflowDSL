@@ -14,4 +14,5 @@ T = TypeVar("T")
 class UnionOperator(ExternalSetOperator):
     def __init__(self, workflow, indexes=[-1]):
         super().__init__(workflow)
-        self.set_function = EagerSet.union
+    def set_function(self, a, b):
+        return a.union(b)

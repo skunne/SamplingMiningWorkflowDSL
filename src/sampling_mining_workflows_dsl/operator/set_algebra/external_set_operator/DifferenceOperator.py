@@ -12,6 +12,7 @@ T = TypeVar("T")
 
 
 class DifferenceOperator(ExternalSetOperator):
-        def __init__(self, workflow,indexes=[-1]):
-            super().__init__(workflow)
-            self.set_function = EagerSet.difference      
+    def __init__(self, workflow,indexes=[-1]):
+        super().__init__(workflow)
+    def set_function(self, a, b):
+        return a.difference(b)
