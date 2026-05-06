@@ -8,6 +8,8 @@ from sampling_mining_workflows_dsl.constraint.Comparator import Comparator
 from sampling_mining_workflows_dsl.element.Element import Element
 from sampling_mining_workflows_dsl.element.LazySet import LazySet
 from sampling_mining_workflows_dsl.element.Repository import Repository
+from sampling_mining_workflows_dsl.constraint.Constraint import Constraint
+
 
 class EagerSet(LazySet):
     def __init__(self):
@@ -101,10 +103,17 @@ class EagerSet(LazySet):
         else:
             return LazySet(chain(iter(self), iter(other)))
     
+    def filter(self, constraint: Constraint) -> Self:
+        kept_elements = type(self)()
+        for element in self.elements.values():
+            if constraint.is_satisfied(element):
+                kept_elements.add_element(element)
+        return kept_elements
+        
     def intersection(self, other: "EagerSet") -> "EagerSet":
         if not isinstance(other, EagerSet):
             raise NotImplementedError
-        common_elements = EagerSet()
+        common_elements = type(self)()
         for id, element in self.elements.items():
             if id in other.elements.keys():
                 common_elements.add_element(element)
@@ -114,7 +123,7 @@ class EagerSet(LazySet):
         if not isinstance(other, EagerSet):
             raise NotImplementedError
         """Return a new set with elements in this set but not in other"""
-        diff_elements = EagerSet()
+        diff_elements = type(self)()
         for id, element in self.elements.items():
             if id not in other.elements.keys():
                 diff_elements.add_element(element)
@@ -124,7 +133,7 @@ class EagerSet(LazySet):
         if not isinstance(other, EagerSet):
             raise NotImplementedError
         """Return a new set with elements in either set but not in both"""
-        sym_diff = EagerSet()
+        sym_diff = type(self)()
         
         # Add elements from this set that are not in other
         for id, element in self.elements.items():

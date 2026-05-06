@@ -11,15 +11,7 @@ class FilterOperator(Operator):
         constraint.set_workflow(workflow)
 
     def execute(self):
-        self._output = EagerSet()
-        elements = self._input.get_elements()
-        
-        # Add progress bar for filtering operation
-        with tqdm(elements, desc="Filtering elements", unit="element") as pbar:
-            for element in pbar:
-                if self._constraint.is_satisfied(element):
-                    self._output.add_element(element)
-                    
+        self._output = self._input.filter(self._constraint)
         super().execute()
         return self
 

@@ -4,6 +4,7 @@ from pathlib import Path
 
 from sampling_mining_workflows_dsl.element.Repository import Repository
 from sampling_mining_workflows_dsl.element.EagerSet import EagerSet
+from sampling_mining_workflows_dsl.element.LazySet import LazySet
 
 
 # Note: Can handle both flat sets (depth 1) and nested sets (depth > 1)
@@ -13,10 +14,8 @@ class JsonWriter:
 
     def write_set(self, set_obj: EagerSet):
         print(f"Writing set to JSON at: {self.set_path}")
-        if not isinstance(set_obj, EagerSet):
-            raise TypeError("Expected a Set object")
 
-        elements = set_obj.elements.values()
+        elements = [element for element in set_obj]
 
         if not elements:
             raise ValueError("The set is empty. Nothing to write.")

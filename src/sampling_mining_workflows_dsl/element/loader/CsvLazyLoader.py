@@ -40,7 +40,7 @@ class CsvLazyLoader(Loader):
                         except Exception as e:
                             logging.info(f"Row skipped due to {e} : {row}")
 
-        the_set = LazySet(iterator)
+        the_set = LazySet(iterator())
         self.set = the_set
         return the_set
 

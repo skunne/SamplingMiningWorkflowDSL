@@ -1,13 +1,13 @@
 import random
 from itertools import chain, islice
 from functools import cmp_to_key
-from collections import OrderedDict
 
 from typing import Self, Iterable, TYPE_CHECKING
 
 from sampling_mining_workflows_dsl.constraint.Comparator import Comparator
 from sampling_mining_workflows_dsl.element.Element import Element
 from sampling_mining_workflows_dsl.element.Repository import Repository
+from sampling_mining_workflows_dsl.constraint.Constraint import Constraint
 
 if TYPE_CHECKING:
     from sampling_mining_workflows_dsl.element.EagerSet import EagerSet
@@ -74,6 +74,10 @@ class LazySet(Element):
         #     if isinstance(element, LazySet):
         #         max_depth = max(max_depth, 1 + element.get_depth())
         # return max_depth
+    
+    def filter(self, constraint: Constraint) -> Self:
+        iterator = (x for x in self if constraint.is_satisfied(x))
+        return type(self)(iterator)
     
     def union(self, other: Iterable) -> Self:
         other_iterator = iter(other)
