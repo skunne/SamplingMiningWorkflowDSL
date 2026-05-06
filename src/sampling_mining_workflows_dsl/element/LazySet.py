@@ -2,7 +2,7 @@ import random
 from itertools import chain, islice
 from functools import cmp_to_key
 
-from typing import Self, Iterable, TYPE_CHECKING
+from typing import Self, Iterable, Mapping, TYPE_CHECKING
 
 from sampling_mining_workflows_dsl.constraint.Comparator import Comparator
 from sampling_mining_workflows_dsl.element.Element import Element
@@ -16,12 +16,17 @@ if TYPE_CHECKING:
 class LazySet(Element):
     def __init__(self, iterator):
         super().__init__()
-        self.iterator = iterator
-        # self.n_seen = 0             # TODO number of elements already iterated through
-        # self.fully_consumed = False # TODO becomes True as soon as we encounter StopIteration
-    
+        self.n_seen = 0
+        self.fully_consumed = False
+        def iter_and_count():
+            for e in iterator:
+                self.n_seen += 1
+                yield e
+            self.fully_consumed = True
+        self.iterator = iter_and_count()
+ 
     @classmethod
-    def from_iter_of_maps(cls, metadatas, maps: Iterable) -> Self:
+    def from_iter_of_maps(cls, metadatas, maps: Iterable[Mapping]) -> Self:
         id = metadatas[0]
         def it():
             for row in maps:
@@ -111,20 +116,14 @@ class LazySet(Element):
     
     def is_empty(self) -> bool:
         """Return True if the set is empty"""
-        raise NotImplementedError
-        # TODO
-        # if self.fully_consumed:
-        #     return self.n_seen == 0
-        # else:
-        #     raise SomeCustomException
-    
+        return self.size() == 0
+     
     def size(self) -> int:
-        raise NotImplementedError
-        # TODO
-        # if self.fully_consumed:
-        #     return self.n_seen
-        # else:
-        #     raise SomeCustomException
+        return self.n_seen
+        if self.fully_consumed:
+            return self.n_seen
+        else:
+            raise RuntimeError("Cannot guess size of LazySet before consuming it!")
 
     def get_element(self, id: str) -> Element:
         raise NotImplementedError

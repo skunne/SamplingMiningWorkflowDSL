@@ -2,13 +2,14 @@ import random
 from functools import cmp_to_key
 from collections import OrderedDict
 from itertools import chain
-from typing import Iterable, Self
+from typing import Iterable, Mapping, Self
 
 from sampling_mining_workflows_dsl.constraint.Comparator import Comparator
 from sampling_mining_workflows_dsl.element.Element import Element
 from sampling_mining_workflows_dsl.element.LazySet import LazySet
 from sampling_mining_workflows_dsl.element.Repository import Repository
 from sampling_mining_workflows_dsl.constraint.Constraint import Constraint
+
 
 
 class EagerSet(LazySet):
@@ -38,7 +39,7 @@ class EagerSet(LazySet):
         return result
     
     @classmethod
-    def from_iter_of_maps(cls, metadatas, maps: Iterable) -> Self:
+    def from_iter_of_maps(cls, metadatas, maps: Iterable[Mapping]) -> Self:
         id = metadatas[0]
         eager_set = cls()
         for row in maps:

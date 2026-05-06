@@ -46,3 +46,6 @@ def test_workflow_lazyset():
         written_data = json.load(f)
         assert(len(written_data) == 40)
         assert(all(20000 < d["commitNb"] < 700000 for d in written_data))
+    
+    WorkflowVisualizer(w, ".").generate_graph()
+
