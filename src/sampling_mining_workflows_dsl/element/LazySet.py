@@ -95,12 +95,12 @@ class LazySet(Element):
         return type(self)(iterator)
     
     def intersection(self, other: "EagerSet") -> Self:
-        iterator = (x for x in self if x in other.elements)
+        iterator = (x for x in self if x.get_id() in other.elements)
         return type(self)(iterator)
     
     def difference(self, other: "EagerSet") -> Self:
         """Return a new set with elements in this set but not in other"""
-        iterator = (x for x in self if x not in other.elements)
+        iterator = (x for x in self if x.get_id() not in other.elements)
         return type(self)(iterator)
     
     def symmetric_difference(self, other: "EagerSet") -> "LazySet":

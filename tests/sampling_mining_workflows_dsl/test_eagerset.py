@@ -32,8 +32,9 @@ def test_from_iter_of_maps():
     assert(element0 == e)
     
 def test_from_lazyset():
-    elements = [(str(x), x, 2*x) for x in range(10)]
-    lazy_set = LazySet(iter(elements))
+    metadatas = [Metadata.of_string("id"), Metadata.of_integer("val"), Metadata.of_integer("double")]
+    it1 = ({"val": x, "id": str(x), "double": x+x} for x in range(10))
+    lazy_set = LazySet.from_iter_of_maps(metadatas, it1)
 
     eager_set = EagerSet.from_lazyset(lazy_set)
     assert(isinstance(eager_set, EagerSet))
@@ -49,7 +50,7 @@ def test_allcreationsareequal():
     metadatas = [Metadata.of_string("id"), Metadata.of_integer("val"), Metadata.of_integer("double")]
     dataset = {"val": list(range(10)), "irrelevant": list("ABCDEFGHIJ"), "id": list(map(str, range(10))), "double": list(range(0,20,2))}
     maps = [{"val": x, "irrelevant": "ABCDEFGHIJ"[x], "id": str(x), "double": 2*x} for x in range(10)]
-    lazy_set = LazySet(((str(x), x, 2*x) for x in range(10)))
+    lazy_set = LazySet.from_iter_of_maps(metadatas, maps)
 
     set_from_ds = EagerSet.from_dataset(metadatas, dataset)
     set_from_maps = EagerSet.from_iter_of_maps(metadatas, maps)
