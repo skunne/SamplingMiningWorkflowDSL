@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, Any
 import logging
 from sampling_mining_workflows_dsl.element.Loader import Loader
 from sampling_mining_workflows_dsl.element.Repository import Repository
-from sampling_mining_workflows_dsl.element.Set import EagerSet
+from sampling_mining_workflows_dsl.element.EagerSet import EagerSet
 from sampling_mining_workflows_dsl.metadata.Metadata import Metadata
 
 if TYPE_CHECKING:

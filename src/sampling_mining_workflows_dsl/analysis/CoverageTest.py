@@ -1,6 +1,6 @@
 from collections import Counter
 
-from sampling_mining_workflows_dsl.element.Set import EagerSet
+from sampling_mining_workflows_dsl.element.EagerSet import EagerSet
 from sampling_mining_workflows_dsl.metadata.Metadata import Metadata
 
 

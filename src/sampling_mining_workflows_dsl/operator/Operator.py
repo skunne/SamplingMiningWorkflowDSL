@@ -4,7 +4,7 @@ from abc import ABC
 from typing import TYPE_CHECKING, Optional
 
 from sampling_mining_workflows_dsl.element.Loader import Loader
-from sampling_mining_workflows_dsl.element.Set import EagerSet
+from sampling_mining_workflows_dsl.element.EagerSet import EagerSet
 from sampling_mining_workflows_dsl.element.Writer import Writer
 
 if TYPE_CHECKING:

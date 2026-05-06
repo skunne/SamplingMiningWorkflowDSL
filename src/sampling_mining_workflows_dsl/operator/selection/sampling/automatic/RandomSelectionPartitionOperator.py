@@ -1,5 +1,5 @@
 
-from sampling_mining_workflows_dsl.element.Set import EagerSet
+from sampling_mining_workflows_dsl.element.EagerSet import EagerSet
 from sampling_mining_workflows_dsl.operator.Operator import Operator
 from sampling_mining_workflows_dsl.operator.selection.sampling.automatic.AutomaticSamplingOperator import (
     AutomaticSamplingOperator,

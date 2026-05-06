@@ -1,7 +1,7 @@
 
 from typing import TYPE_CHECKING
 
-from sampling_mining_workflows_dsl.element.Set import EagerSet
+from sampling_mining_workflows_dsl.element.EagerSet import EagerSet
 from sampling_mining_workflows_dsl.operator.Operator import Operator
 
 if TYPE_CHECKING:

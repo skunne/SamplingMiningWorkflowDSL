@@ -2,7 +2,7 @@ import csv
 from pathlib import Path
 
 from sampling_mining_workflows_dsl.element.Repository import Repository
-from sampling_mining_workflows_dsl.element.Set import EagerSet
+from sampling_mining_workflows_dsl.element.EagerSet import EagerSet
 
 
 # Note that the depth of the set should be 1

@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING, Any
 
 from sampling_mining_workflows_dsl.element.loader.CsvLoader import CsvLoader
 from sampling_mining_workflows_dsl.element.Repository import Repository
-from sampling_mining_workflows_dsl.element.Set import EagerSet
+from sampling_mining_workflows_dsl.element.EagerSet import EagerSet
 from sampling_mining_workflows_dsl.github_seart.metadata import all_metadatas
 
 if TYPE_CHECKING:

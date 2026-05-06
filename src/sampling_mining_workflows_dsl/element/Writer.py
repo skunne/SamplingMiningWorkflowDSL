@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-from sampling_mining_workflows_dsl.element.Set import EagerSet
+from sampling_mining_workflows_dsl.element.EagerSet import EagerSet
 
 
 class Writer(ABC):

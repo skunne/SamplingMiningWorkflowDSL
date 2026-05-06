@@ -10,14 +10,15 @@ from sampling_mining_workflows_dsl.element.Element import Element
 from sampling_mining_workflows_dsl.element.Repository import Repository
 
 if TYPE_CHECKING:
-    from sampling_mining_workflows_dsl.element.Set import EagerSet
+    from sampling_mining_workflows_dsl.element.EagerSet import EagerSet
 
 
 class LazySet(Element):
     def __init__(self, iterator):
         super().__init__()
         self.iterator = iterator
-        self.n_seen = 0
+        # self.n_seen = 0             # TODO number of elements already iterated through
+        # self.fully_consumed = False # TODO becomes True as soon as we encounter StopIteration
     
     @classmethod
     def from_iter_of_maps(cls, metadatas, maps: Iterable) -> Self:
@@ -47,39 +48,30 @@ class LazySet(Element):
         # if index < 0 or index >= len(self.elements):
         #     raise IndexError("Index out of range")
         # return list(self.elements.values())[index]
+
     def __next__(self) -> Element:
         return next(self.iterator)
     
     def __iter__(self):
         return self.iterator
     
-    def remove_all_elements(self) -> "LazySet":
+    def remove_all_elements(self) -> Self:
         raise NotImplementedError
         # self.elements.clear()
         # self.ids.clear()
         # return self
-    def add_element(self, element: Element) -> "LazySet":
+
+    def add_element(self, element: Element) -> Self:
         raise NotImplementedError
         # if not element.get_id() in self.ids:
         #     self.elements[element.get_id()]=element
         #     self.ids.add(element.get_id())
         # else :
         #     print(f"{element.get_id()} Already present")
-
         # return self
 
-    def sort_by_metadata(self, metadata_name: str, comparator: Comparator, reverse=False) -> "LazySet":
+    def sort_by_metadata(self, metadata_name: str, comparator: Comparator, reverse=False) -> Self:
         raise NotImplementedError
-        # # Sort the items of the OrderedDict
-        # sorted_items = sorted(
-        #     self.elements.items(),
-        #     key=cmp_to_key(lambda x, y: comparator.compare(x[1], y[1])),
-        #     reverse=reverse
-        # )
-    
-        # # Rebuild as OrderedDict
-        # self.elements = OrderedDict(sorted_items)
-        # return self
 
     def get_depth(self) -> int:
         raise NotImplementedError
@@ -103,22 +95,9 @@ class LazySet(Element):
         iterator = (x for x in self if x.get_id() not in other.elements)
         return type(self)(iterator)
     
-    def symmetric_difference(self, other: "EagerSet") -> "LazySet":
-        raise NotImplementedError
+    def symmetric_difference(self, other: "EagerSet") -> Self:
         # """Return a new set with elements in either set but not in both"""
-        # sym_diff = LazySet()
-        
-        # # Add elements from this set that are not in other
-        # for id, element in self.elements.items():
-        #     if id not in other.elements.keys():
-        #         sym_diff.add_element(element)
-        
-        # # Add elements from other set that are not in this
-        # for id, element in other.elements.items():
-        #     if id not in self.elements.keys():
-        #         sym_diff.add_element(element)
-        
-        # return sym_diff
+        raise NotImplementedError
     
     def is_subset(self, other: "EagerSet") -> bool:
         raise NotImplementedError
@@ -152,12 +131,11 @@ class LazySet(Element):
     
     def size(self) -> int:
         raise NotImplementedError
-        # TODO: add a self.fully_itered flag initially set to False, then set to True when we finish the iterator
-        # if self.fully_itered:
+        # TODO
+        # if self.fully_consumed:
         #     return self.n_seen
         # else:
         #     raise SomeCustomException
-        return len(self.elements)
 
     def get_element(self, id: str) -> Element:
         raise NotImplementedError
@@ -165,7 +143,7 @@ class LazySet(Element):
         #     raise RuntimeError(f"Element with id {id} not found in the set")
         # return self.elements.get(id)
     
-    # def set_id(self, set_id: str) -> "LazySet":
+    # def set_id(self, set_id: str) -> Self:
     #     raise NotImplementedError
     #     self.set_id = set_id
     #     return self 
@@ -200,12 +178,11 @@ class LazySet(Element):
         raise NotImplementedError
         # return list(self.elements.values())
     
-    def clone(self) -> "EagerSet":
+    def clone(self) -> Self:
         raise NotImplementedError
-        # cloned_set = LazySet()
-        # for element in self.get_elements():
-        #     cloned_set.add_element(element)
-        # return cloned_set
+        iter1, iter2 = itertools.tee(self.iterator) # not recommended
+        self.iterator = iter1
+        return LazySet(iter2)
     
     def __str__(self) -> str:
         raise NotImplementedError
@@ -213,28 +190,3 @@ class LazySet(Element):
 
     def to_string(self, level: int = 0) -> str:
         raise NotImplementedError
-        # truncate_after = 10
-        # indent = "    " * level
-
-        # result = f"{indent}(size={len(self.elements)})["
-        # elements_list = self.get_elements()
-        # element_to_print = min(truncate_after, len(self.elements))
-
-        # for i in range(element_to_print):
-        #     next_element = elements_list[i]
-
-        #     if isinstance(next_element, LazySet):
-        #         # Recursively call to_string for nested LazySets
-        #         result += f"\n{next_element.to_string(level + 4)}"
-        #     else:
-        #         result += str(next_element)
-
-        #     if i != element_to_print - 1:
-        #         result += ","
-
-        # if len(self.elements) > truncate_after:
-        #     result += "...]"
-        # else:
-        #     result += "]"
-
-        # return result

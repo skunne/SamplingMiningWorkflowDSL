@@ -6,7 +6,7 @@ from sampling_mining_workflows_dsl.metadata.Metadata import Metadata
 from sampling_mining_workflows_dsl.operator.clustering.GroupingOperator import GroupingOperator
 
 if TYPE_CHECKING:
-    from sampling_mining_workflows_dsl.element.Set import EagerSet
+    from sampling_mining_workflows_dsl.element.EagerSet import EagerSet
 
 
 class DistributionWorkflowAnalysis:

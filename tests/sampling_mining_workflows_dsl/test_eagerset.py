@@ -1,7 +1,7 @@
 import pytest
 
 from sampling_mining_workflows_dsl.element.LazySet import LazySet
-from sampling_mining_workflows_dsl.element.Set import EagerSet
+from sampling_mining_workflows_dsl.element.EagerSet import EagerSet
 from sampling_mining_workflows_dsl.element.Repository import Repository
 from sampling_mining_workflows_dsl.metadata.Metadata import Metadata
 
@@ -120,12 +120,12 @@ def test_add_element():
     es2 = EagerSet.from_iter_of_maps(metadatas, [{"id": str(x), "val": x, "double": 2*x} for x in range(10)])
     assert(es1 == es2)
 
-#def sort_by_metadata(self, metadata_name: str, comparator: Comparator, reverse=False) -> "EagerSet":
-def test_sort_by_metadata():
-    pass
+# #def sort_by_metadata(self, metadata_name: str, comparator: Comparator, reverse=False) -> "EagerSet":
+# def test_sort_by_metadata():
+#     pass
 
-def test_get_depth():
-    pass
+# def test_get_depth():
+#     pass
 
 def test_union():
     metadatas = [Metadata.of_string("id"), Metadata.of_integer("val"), Metadata.of_integer("double")]
@@ -269,7 +269,6 @@ def test_size():
     assert(es2.size() == 2)
     assert(es3.size() == 1)
 
-#def get_element(self, id: str) -> Element:
 def test_get_element():
     metadatas = [Metadata.of_string("id"), Metadata.of_integer("val"), Metadata.of_integer("double")]
     es0 = EagerSet.from_iter_of_maps(metadatas, [])
@@ -286,9 +285,9 @@ def test_get_element():
     y.add_metadata_values([i.create_metadata_value("2"), v.create_metadata_value(2), d.create_metadata_value(2+2)])
     assert(x == y)
 
-def test_flatten_set():
-    pass
+# def test_flatten_set():
+#     pass
 
 
-def test_get_random_subset():
-    pass
+# def test_get_random_subset():
+#     pass

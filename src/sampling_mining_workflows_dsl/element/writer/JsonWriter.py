@@ -3,7 +3,7 @@ from datetime import datetime, date
 from pathlib import Path
 
 from sampling_mining_workflows_dsl.element.Repository import Repository
-from sampling_mining_workflows_dsl.element.Set import EagerSet
+from sampling_mining_workflows_dsl.element.EagerSet import EagerSet
 
 
 # Note: Can handle both flat sets (depth 1) and nested sets (depth > 1)

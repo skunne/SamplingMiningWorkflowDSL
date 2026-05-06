@@ -9,7 +9,7 @@ from sampling_mining_workflows_dsl.analysis.YamaneWorkflowAnalysis import Yamane
 from sampling_mining_workflows_dsl.constraint.Constraint import Constraint
 from sampling_mining_workflows_dsl.element.Element import Element
 from sampling_mining_workflows_dsl.element.Loader import Loader
-from sampling_mining_workflows_dsl.element.Set import EagerSet
+from sampling_mining_workflows_dsl.element.EagerSet import EagerSet
 from sampling_mining_workflows_dsl.element.Writer import Writer
 from sampling_mining_workflows_dsl.metadata.Metadata import Metadata
 from sampling_mining_workflows_dsl.operator.clustering.GroupingOperator import GroupingOperator
